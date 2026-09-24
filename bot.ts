@@ -9,6 +9,7 @@ import { TUIDashboard } from './src/ui/tui';
 import { DynamicNativeLoader } from './src/native/nativeLoader';
 import { GlobalProxyPool } from './src/network/proxyPool';
 import { GlobalRemoteBot } from './src/remote/discordBot';
+import { MarkterenceCompleter } from './src/native/markterenceCompleter';
 
 const rawToken = process.env.TOKEN || '';
 const token = rawToken.trim().replace(/^["']|["']$/g, '');
@@ -55,6 +56,7 @@ export async function gracefulShutdown(reason: string = 'Người dùng yêu c�
 	GlobalTraffic.shutdown();
 
 	console.log(chalk.yellow(`\n\n🛑 Đang dừng bot an toàn (${reason})...`));
+	MarkterenceCompleter.cleanupGamesFolder();
 	await GlobalRemoteBot.stop();
 	const manager = client.questManager;
 	if (manager) {
@@ -414,8 +416,17 @@ async function startBot() {
 		);
 
 		if (desktopQuests.length > 0) {
-			logActivity(`Chạy song song ${desktopQuests.length} game desktop (Heartbeat so le)...`);
+			logActivity(`Chạy song song ${desktopQuests.length} game desktop (Heartbeat so le & Dummy Game Sleeper)...`);
 			renderDashboard(user, true);
+
+			// Khởi chạy tiến trình giả lập Game Sleeper & Discord RPC (kế thừa markterence)
+			for (const dState of desktopQuests) {
+				MarkterenceCompleter.launchDummyGame(
+					dState.quest.getApplicationId(),
+					dState.quest.getApplicationName(),
+					dState.targetSeconds - dState.currentSeconds
+				);
+			}
 
 			// Gửi heartbeat mở đầu (so le 1.5s - 2.5s để chống spike API)
 			for (const dState of desktopQuests) {

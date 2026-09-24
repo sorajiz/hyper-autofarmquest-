@@ -14,11 +14,12 @@ const testFiles = [
 	'tests/goWorker.test.ts',
 	'tests/pythonService.test.ts',
 	'tests/webDashboard.test.ts',
+	'tests/markterence.test.ts',
 ];
 
-console.log('🚀 Chạy toàn bộ 13 bộ Test Suite của Hyper AutoFarm Quest Polyglot...\n');
+console.log('🚀 Chạy toàn bộ 14 bộ Test Suite của Hyper AutoFarm Quest Polyglot...\n');
 for (const file of testFiles) {
 	console.log(`▶ Executing ${file}...`);
 	execSync(`npx tsx ${file}`, { stdio: 'inherit' });
 }
-console.log('\n✨ TẤT CẢ 13 BỘ TEST ĐÃ HOÀN TOÀN VƯỢT QUA 100%!');
+console.log('\n✨ TẤT CẢ 14 BỘ TEST ĐÃ HOÀN TOÀN VƯỢT QUA 100%!');
