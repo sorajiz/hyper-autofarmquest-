@@ -2,6 +2,7 @@ import { ClientQuest } from './client';
 import type { AllQuestsResponse } from './interface';
 import { Quest } from './quest';
 import { GlobalTraffic } from './traffic';
+import { CaptchaPipeline, GlobalCaptchaPipeline } from './security/captcha';
 
 export class QuestManager implements Iterable<Quest> {
 	private readonly quests = new Map<string, Quest>();
@@ -135,6 +136,30 @@ export class QuestManager implements Iterable<Quest> {
 			}
 			return true;
 		} catch (err: any) {
+			const challenge = CaptchaPipeline.extractChallenge(err?.rawError);
+			if (challenge) {
+				const solvedKey = await GlobalCaptchaPipeline.solve(challenge);
+				if (solvedKey) {
+					try {
+						const retryRes = await GlobalTraffic.enqueue(() =>
+							this.client.rest.post(`/quests/${questId}/enroll`, {
+								headers: { 'X-Captcha-Key': solvedKey },
+								body: {
+									location: 11,
+									is_targeted: false,
+									metadata_sealed: null,
+									traffic_metadata_sealed: trafficSealed,
+									captcha_key: solvedKey,
+								},
+							}),
+						);
+						if (quest && retryRes) {
+							quest.updateUserStatus(retryRes as any);
+						}
+						return true;
+					} catch {}
+				}
+			}
 			return false;
 		}
 	}
@@ -160,11 +185,39 @@ export class QuestManager implements Iterable<Quest> {
 			}
 			return { success: true, message: 'Đã nhận thưởng thành công!' };
 		} catch (err: any) {
+			const challenge = CaptchaPipeline.extractChallenge(err?.rawError);
+			if (challenge) {
+				const solvedKey = await GlobalCaptchaPipeline.solve(challenge);
+				if (solvedKey) {
+					try {
+						const retryRes = await GlobalTraffic.enqueue(() =>
+							this.client.rest.post(`/quests/${questId}/claim-reward`, {
+								headers: { 'X-Captcha-Key': solvedKey },
+								body: {
+									platform: 0,
+									location: 11,
+									is_targeted: false,
+									metadata_sealed: null,
+									traffic_metadata_sealed: trafficSealed,
+									captcha_key: solvedKey,
+								},
+							}),
+						);
+						if (quest && retryRes) {
+							quest.updateUserStatus(retryRes as any);
+						}
+						return { success: true, message: 'Đã giải Captcha và nhận thưởng thành công!' };
+					} catch (retryErr: any) {
+						return { success: false, message: `Thử lại sau Captcha thất bại: ${retryErr?.message || retryErr}` };
+					}
+				}
+			}
+
 			const rawMsg = err?.message || String(err);
 			if (rawMsg.includes('captcha') || err?.rawError?.captcha_key) {
 				return {
 					success: false,
-					message: 'Discord yêu cầu Captcha. Vui lòng bấm Nhận quà trên Discord app.',
+					message: 'Discord yêu cầu Captcha. Vui lòng bấm Nhận quà trên Discord app hoặc cấu hình CAPSOLVER_API_KEY.',
 				};
 			}
 			return { success: false, message: rawMsg };
