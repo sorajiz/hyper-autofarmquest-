@@ -52,8 +52,8 @@ const initialQuests: Quest[] = [
 
 export default function DashboardPage() {
   const [quests, setQuests] = useState<Quest[]>(initialQuests);
-  const [orbsCount, setOrbsCount] = useState<number>(350);
-  const [proxyStatus, setProxyStatus] = useState<string>('127.0.0.1:1080 (Dual-Stack IPv6 /64 Active)');
+  const [orbsCount, setOrbsCount] = useState<number>(450);
+  const [proxyStatus, setProxyStatus] = useState<string>('127.0.0.1:1080 (Dual-Stack IPv6 /64)');
   const [latency, setLatency] = useState<number>(24);
   const [notification, setNotification] = useState<string | null>(null);
 
@@ -89,7 +89,7 @@ export default function DashboardPage() {
     setQuests((prev) =>
       prev.map((q) => (q.status === 'READY' ? { ...q, status: 'FARMING' } : q))
     );
-    notify('🚀 Auto Farm launched across all eligible quests!');
+    notify('[COMMAND: OK] Auto Farm pipeline activated across all eligible tasks.');
   };
 
   const handleClaimAll = () => {
@@ -106,20 +106,20 @@ export default function DashboardPage() {
 
     if (gained > 0) {
       setOrbsCount((prev) => prev + gained);
-      notify(`🎁 Claimed ${gained} Orbs and Discord rewards!`);
+      notify(`[REWARDS: CLAIMED] Received +${gained} Discord Orbs and inventory rewards.`);
     } else {
-      notify('ℹ️ No completed quests ready for claiming.');
+      notify('[INFO] No completed tasks available for claim.');
     }
   };
 
   const handleRotateProxy = () => {
     setProxyStatus('192.168.1.100:9050 (IPv6 /64 Rotated)');
-    setLatency(Math.floor(Math.random() * 20) + 15);
-    notify('🔄 SOCKS5 / IPv6 Proxy pool rotated successfully!');
+    setLatency(Math.floor(Math.random() * 15) + 18);
+    notify('[NETWORK: ROTATED] Switched to next healthy Dual-Stack socket.');
   };
 
   const handleScanHidden = () => {
-    notify('🔍 Platform Matrix scan running (Mobile/Console/Geo)... Found 1 hidden quest!');
+    notify('[SCANNER] Executed Platform Matrix probe. Discovered 1 unlisted quest.');
     const newQuest: Quest = {
       id: `quest_hidden_${Date.now()}`,
       name: 'Xbox Game Pass - Forza Horizon 5 Secret Quest',
@@ -139,39 +139,44 @@ export default function DashboardPage() {
       {/* Hero Header */}
       <header className="hero-banner">
         <div>
+          <div className="brand-pretitle">[CORE SYSTEM // v3.2.0]</div>
           <h1 className="brand-title">
-            <span>⚡</span> Auto Hyper - Farm Orb
+            <span className="highlight">Auto Hyper - Farm Orb</span>
           </h1>
           <p className="brand-subtitle">
-            Next-Gen Multi-Platform Discord Quests & Orbs Automation Matrix v3.0.0
+            Next-Gen Multi-Platform Discord Quests & Orbs Automation Matrix
           </p>
         </div>
 
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '0.8rem', color: '#9CA3AF' }}>Active Connection</div>
-          <div style={{ color: '#00D26A', fontWeight: 700, fontSize: '0.95rem' }}>
-            ● ONLINE | {latency}ms
+        <div className="system-status">
+          <div style={{ fontSize: '0.72rem', color: '#64748B', letterSpacing: '1px', textTransform: 'uppercase' }}>
+            Telemetry Link
+          </div>
+          <div className="status-badge">
+            ● ONLINE // {latency}ms
           </div>
         </div>
       </header>
 
-      {/* Global Toast Notification */}
+      {/* Global Status Banner */}
       {notification && (
         <div
           style={{
-            background: 'rgba(88, 101, 242, 0.9)',
-            color: '#FFF',
-            padding: '12px 20px',
-            borderRadius: '10px',
+            background: 'rgba(15, 23, 42, 0.95)',
+            border: '1px solid #00F0FF',
+            color: '#F8FAFC',
+            padding: '12px 18px',
+            borderRadius: '6px',
             marginBottom: '24px',
-            boxShadow: '0 4px 18px rgba(88, 101, 242, 0.5)',
-            fontWeight: 600,
+            fontFamily: 'ui-monospace, monospace',
+            fontSize: '0.88rem',
+            boxShadow: '0 4px 18px rgba(0, 240, 255, 0.15)',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '10px',
           }}
         >
-          <span>✨</span> {notification}
+          <span style={{ color: '#00F0FF', fontWeight: 700 }}>[INFO]</span> {notification}
         </div>
       )}
 
@@ -179,35 +184,31 @@ export default function DashboardPage() {
       <section className="stats-grid">
         <div className="stat-card">
           <div className="stat-label">
-            <span>🔮</span> Total Discord Orbs
+            <span>[METRIC]</span> Total Discord Orbs
           </div>
           <div className="stat-value neon-cyan">{orbsCount.toLocaleString()}</div>
-          <div style={{ fontSize: '0.8rem', color: '#9CA3AF', marginTop: '6px' }}>
-            Earned today: +75 Orbs
-          </div>
+          <div className="stat-meta">Daily accumulation: +75 Orbs</div>
         </div>
 
         <div className="stat-card">
           <div className="stat-label">
-            <span>⚔️</span> Quests In Progress
+            <span>[PIPELINE]</span> Active Quests
           </div>
           <div className="stat-value neon-emerald">
             {quests.filter((q) => q.status === 'FARMING').length}
           </div>
-          <div style={{ fontSize: '0.8rem', color: '#9CA3AF', marginTop: '6px' }}>
-            Total active catalog: {quests.length} quests
-          </div>
+          <div className="stat-meta">Active catalog size: {quests.length} missions</div>
         </div>
 
         <div className="stat-card">
           <div className="stat-label">
-            <span>🛡️</span> Dual-Stack Proxy Pool
+            <span>[NETWORK]</span> Proxy Routing
           </div>
-          <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#FFF', marginTop: '12px' }}>
+          <div style={{ fontSize: '1rem', fontWeight: 700, color: '#F8FAFC', marginTop: '10px', fontFamily: 'ui-monospace, monospace' }}>
             {proxyStatus}
           </div>
-          <div style={{ fontSize: '0.8rem', color: '#00F0FF', marginTop: '8px' }}>
-            Remote DNS Safe • Zero Leak Verified
+          <div className="stat-meta" style={{ color: '#00F0FF' }}>
+            Remote DNS Verified • Anti-Leak
           </div>
         </div>
       </section>
@@ -215,25 +216,25 @@ export default function DashboardPage() {
       {/* 1-Click Controls */}
       <section className="controls-bar">
         <button className="btn btn-primary" onClick={handleAutoFarmAll}>
-          ⚡ Auto Farm All
+          [+] Auto Farm All
         </button>
         <button className="btn btn-success" onClick={handleClaimAll}>
-          🎁 Claim All Rewards
+          [*] Claim All Rewards
         </button>
         <button className="btn btn-secondary" onClick={handleRotateProxy}>
-          🔄 Rotate Proxy
+          [~] Rotate Proxy
         </button>
         <button className="btn btn-secondary" onClick={handleScanHidden}>
-          🔍 Scan Hidden Quests
+          [?] Scan Hidden Quests
         </button>
       </section>
 
       {/* Active Quests Grid */}
       <section>
         <div className="section-header">
-          <h2 className="section-title">Active Missions & Rewards</h2>
-          <div style={{ fontSize: '0.85rem', color: '#9CA3AF' }}>
-            Auto-refreshing via Live State Stream
+          <h2 className="section-title">Active Missions & Task Matrix</h2>
+          <div style={{ fontSize: '0.8rem', color: '#64748B', fontFamily: 'ui-monospace, monospace' }}>
+            SYNC: REAL-TIME STREAM
           </div>
         </div>
 
@@ -248,14 +249,14 @@ export default function DashboardPage() {
                   </span>
                 </div>
 
-                <div style={{ fontSize: '0.82rem', color: '#9CA3AF', marginBottom: '8px' }}>
-                  Target Mode: <strong style={{ color: '#F3F4F6' }}>{quest.task_type}</strong>
+                <div style={{ fontSize: '0.8rem', color: '#94A3B8', marginBottom: '8px', fontFamily: 'ui-monospace, monospace' }}>
+                  MODE: <strong style={{ color: '#F8FAFC' }}>{quest.task_type}</strong>
                 </div>
 
                 <div className="progress-container">
                   <div className="progress-info">
                     <span>
-                      {quest.progress_seconds}/{quest.target_seconds}s
+                      {quest.progress_seconds}s / {quest.target_seconds}s
                     </span>
                     <span>{quest.percent}%</span>
                   </div>
@@ -269,8 +270,8 @@ export default function DashboardPage() {
               </div>
 
               <div className="rewards-box">
-                <span className="orbs-tag">🔮 +{quest.reward_orbs} Orbs</span>
-                <span style={{ color: '#D1D5DB', fontSize: '0.82rem' }}>{quest.reward_deco}</span>
+                <span className="orbs-tag">+{quest.reward_orbs} Orbs</span>
+                <span style={{ color: '#94A3B8', fontSize: '0.8rem' }}>{quest.reward_deco}</span>
               </div>
             </div>
           ))}

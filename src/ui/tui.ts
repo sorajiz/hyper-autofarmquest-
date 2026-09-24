@@ -32,15 +32,25 @@ export class TUIDashboard {
 
 	public formatStatsTable(ctx: DashboardContext): string {
 		const table = new Table({
-			chars: { 'top-mid': '┬', 'bottom-mid': '┴', 'mid-mid': '┼' },
-			head: [chalk.cyan('Tài khoản'), chalk.magenta('Native Tier'), chalk.yellow('Proxy Hiện Tại'), chalk.green('Tiến Độ')],
+			chars: {
+				'top': '─', 'top-mid': '┬', 'top-left': '┌', 'top-right': '┐',
+				'bottom': '─', 'bottom-mid': '┴', 'bottom-left': '└', 'bottom-right': '┘',
+				'left': '│', 'left-mid': '├', 'mid': '─', 'mid-mid': '┼',
+				'right': '│', 'right-mid': '┤', 'middle': '│'
+			},
+			head: [
+				chalk.hex('#00F0FF').bold('TARGET ACCOUNT'),
+				chalk.hex('#5865F2').bold('NATIVE TIER'),
+				chalk.hex('#F59E0B').bold('PROXY / ROUTING'),
+				chalk.hex('#00D26A').bold('PIPELINE METRICS'),
+			],
 		});
 
 		table.push([
-			`${chalk.bold(ctx.user.username)}\n${chalk.gray(ctx.user.id)}`,
-			chalk.bold.blue(ctx.nativeTier),
-			chalk.yellow(ctx.proxyStatus),
-			`Đang chạy: ${chalk.cyan(ctx.activeQuestsCount)}\nĐã xong: ${chalk.green(ctx.completedQuestsCount)}`,
+			`${chalk.hex('#F8FAFC').bold(ctx.user.username)}\n${chalk.hex('#64748B')(ctx.user.id)}`,
+			chalk.hex('#5865F2').bold(ctx.nativeTier),
+			chalk.hex('#F59E0B')(ctx.proxyStatus),
+			`Active:  ${chalk.hex('#00F0FF').bold(ctx.activeQuestsCount)}\nClaimed: ${chalk.hex('#00D26A').bold(ctx.completedQuestsCount)}`,
 		]);
 
 		return table.toString();
@@ -77,11 +87,20 @@ export class TUIDashboard {
 		console.log(renderBanner());
 		console.log(this.formatStatsTable(ctx));
 
-		console.log(chalk.bold.white('\n📋 NHẬT KÝ HOẠT ĐỘNG (LIVE ACTIVITY STREAM):'));
+		console.log(chalk.hex('#94A3B8').bold('\n[TELEMETRY STREAM // RECENT EVENTS]'));
+		const sep = chalk.hex('#1E293B')('─'.repeat(70));
+		console.log(sep);
 		logs.slice(-5).forEach((log) => console.log(log));
+		console.log(sep);
 
 		if (this.interactive) {
-			console.log(chalk.gray('\n⌨ Phím tắt: [r] Quét ẩn | [p] Đổi Proxy | [c] Captcha | [q] Thoát'));
+			console.log(
+				chalk.hex('#64748B')('KEYBINDS: ') +
+				chalk.hex('#00F0FF').bold('[R] ') + chalk.hex('#94A3B8')('Rescan Unlisted  │  ') +
+				chalk.hex('#F59E0B').bold('[P] ') + chalk.hex('#94A3B8')('Rotate Proxy  │  ') +
+				chalk.hex('#00D26A').bold('[C] ') + chalk.hex('#94A3B8')('Captcha Diagnostics  │  ') +
+				chalk.hex('#EF4444').bold('[Q] ') + chalk.hex('#94A3B8')('Graceful Exit')
+			);
 		}
 	}
 

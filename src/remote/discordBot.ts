@@ -24,7 +24,7 @@ export function buildComponentsV2Payload(data: StatusData = {}) {
 
 	return {
 		flags: 1 << 15, // IS_COMPONENTS_V2 (32768)
-		content: `⭐ **Auto Hyper - Farm Orb** | **Control Center**`,
+		content: `**AUTO HYPER - FARM ORB** // **MISSION CONTROL TELEMETRY**`,
 		components: [
 			{
 				type: 1, // Action Row / Container component
@@ -33,41 +33,41 @@ export function buildComponentsV2Payload(data: StatusData = {}) {
 						type: 2, // Button
 						style: 3, // Success (Green)
 						custom_id: 'btn_autofarm',
-						label: '⚡ Auto Farm Tất Cả',
+						label: '[+] Auto Farm',
 					},
 					{
 						type: 2, // Button
 						style: 1, // Primary (Blurple)
 						custom_id: 'btn_claim',
-						label: '🎁 Nhận Quà (Claim)',
+						label: '[*] Claim Rewards',
 					},
 					{
 						type: 2, // Button
 						style: 2, // Secondary (Gray)
 						custom_id: 'btn_rescan',
-						label: '🔍 Quét Nhiệm Vụ Ẩn',
+						label: '[?] Scan Unlisted',
 					},
 					{
 						type: 2, // Button
 						style: 2, // Secondary (Gray)
 						custom_id: 'btn_proxy',
-						label: '🔄 Đổi Proxy',
+						label: '[~] Rotate Proxy',
 					},
 				],
 			},
 		],
 		embeds: [
 			{
-				title: '📊 Bảng Điều Khiển Nhiệm Vụ (Components V2 Dashboard)',
+				title: 'MISSION CONTROL DASHBOARD // COMPONENTS V2',
 				color: 0x5865f2,
 				fields: [
-					{ name: '👤 Tài khoản', value: `${username} (${userId})`, inline: true },
-					{ name: '🛡️ Proxy', value: proxy, inline: true },
-					{ name: '🔮 Orbs Thu Hoạch', value: `${orbs} Orbs`, inline: true },
-					{ name: '⚡ Tiến độ Quests', value: `Đang chạy: **${active}** | Đã hoàn tất: **${completed}**`, inline: false },
+					{ name: '[TARGET USER]', value: `${username} (${userId})`, inline: true },
+					{ name: '[ROUTING ENDPOINT]', value: proxy, inline: true },
+					{ name: '[DISCORD ORBS]', value: `${orbs} Orbs`, inline: true },
+					{ name: '[TASK PIPELINE]', value: `Active: **${active}** | Completed: **${completed}**`, inline: false },
 				],
 				footer: {
-					text: 'Hyper AutoFarm Quest • Discord Components V2 Engine',
+					text: 'Hyper AutoFarm Quest • Enterprise Architecture v3.2.0',
 				},
 				timestamp: new Date().toISOString(),
 			},

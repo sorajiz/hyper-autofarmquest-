@@ -1,7 +1,6 @@
 import readline from 'node:readline';
 import { spawn } from 'node:child_process';
 import chalk from 'chalk';
-import figlet from 'figlet';
 import fs from 'node:fs';
 import path from 'node:path';
 import { renderBanner } from './src/ui/banner';
@@ -31,10 +30,11 @@ async function main() {
 	// Signature ASCII Banner: Auto Hyper - Farm Orb
 	renderBanner();
 
-	console.log(chalk.bold.cyan('========================================================================'));
-	console.log(chalk.bold.white('      ⚡ HYPER AUTO FARM QUEST - UNIVERSAL MISSION CONTROL v3.2.0 ⚡   '));
-	console.log(chalk.gray('       Auto-Load • Multi-Mode Engine • Zero-Config Adaptive Launcher    '));
-	console.log(chalk.bold.cyan('========================================================================\n'));
+	const sep = chalk.hex('#1E293B')('─'.repeat(70));
+	console.log(sep);
+	console.log(chalk.hex('#00F0FF').bold('  [SYSTEM CONTROL]  ') + chalk.hex('#F8FAFC').bold('UNIVERSAL MISSION CONTROL // V3.2.0'));
+	console.log(chalk.hex('#64748B')('  Architectural Polyglot Matrix • Dynamic Native Engine • Dual-Stack'));
+	console.log(sep + '\n');
 
 	// Parse command line arguments for non-interactive / headless / container runs
 	const args = process.argv.slice(2);
@@ -48,13 +48,24 @@ async function main() {
 	}
 
 	if (!selectedMode) {
-		console.log(chalk.bold.yellow('Vui lòng chọn phương thức khởi chạy:'));
-		console.log(chalk.green('  [1] 🤖 Discord Remote Bot') + chalk.gray(' (Điều khiển qua Slash Commands & Discord Components V2)'));
-		console.log(chalk.cyan('  [2] 🖥️  Terminal Interactive') + chalk.gray(' (Dashboard TUI trực tiếp với ASCII Art & Live Matrix)'));
-		console.log(chalk.magenta('  [3] 🌐 Localhost Web Dashboard') + chalk.gray(' (Tự động thích nghi PC, mở Web Control & WebSocket)'));
+		console.log(chalk.hex('#94A3B8').bold('SELECT RUNTIME TARGET:'));
+		console.log(
+			chalk.hex('#5865F2').bold('  [1] Discord Remote Bot') + 
+			chalk.hex('#64748B')('     (Slash Commands & Components V2 Container Interface)')
+		);
+		console.log(
+			chalk.hex('#00F0FF').bold('  [2] Terminal Interactive') + 
+			chalk.hex('#64748B')('   (Real-time TUI Matrix, Live Telemetry & Quick Hotkeys)')
+		);
+		console.log(
+			chalk.hex('#00D26A').bold('  [3] Localhost Web Dashboard') + 
+			chalk.hex('#64748B')(' (Adaptive Browser UI, WebSocket Stream & Orbs Counter)')
+		);
 		console.log('');
 
-		const choice = await promptUser(chalk.bold.white('👉 Nhập lựa chọn của bạn (1, 2, hoặc 3) [Mặc định: 2]: '));
+		const choice = await promptUser(
+			chalk.hex('#F8FAFC').bold('▸ Input target selection [1, 2, 3] (Default: 2): ')
+		);
 		selectedMode = choice.trim() || '2';
 	}
 
@@ -62,21 +73,20 @@ async function main() {
 		// ==========================================
 		// CHẾ ĐỘ 1: DISCORD REMOTE BOT
 		// ==========================================
-		console.log(chalk.bold.green('\n🤖 Khởi chạy chế độ [1] Discord Remote Controller Bot...'));
+		console.log(chalk.hex('#5865F2').bold('\n[MODE 1: DISCORD REMOTE BOT INITIALIZING]'));
 		let botToken = process.env.DISCORD_BOT_TOKEN?.trim();
 
 		if (!botToken || botToken.length < 20) {
-			console.log(chalk.yellow('\nChưa phát hiện DISCORD_BOT_TOKEN trong file .env.'));
-			botToken = await promptUser(chalk.bold.cyan('👉 Vui lòng nhập Discord Bot Token của bạn: '));
+			console.log(chalk.hex('#F59E0B')('[CONFIG] DISCORD_BOT_TOKEN not detected in environment.'));
+			botToken = await promptUser(chalk.hex('#00F0FF')('▸ Enter Discord Bot Token: '));
 			if (!botToken) {
-				console.log(chalk.red('❌ Bot Token không được để trống!'));
+				console.log(chalk.hex('#EF4444')('[ERROR] Bot Token is required to continue.'));
 				process.exit(1);
 			}
 			process.env.DISCORD_BOT_TOKEN = botToken;
 		}
 
-		console.log(chalk.green('✔ Đã nạp Bot Token thành công. Khởi chạy Discord Bot...'));
-		// Spawn bot runner with Discord Bot mode enabled
+		console.log(chalk.hex('#00D26A')('[OK] Bot credentials loaded. Launching Discord Gateway service...'));
 		const botProcess = spawn('npx', ['tsx', 'bot.ts', '--remote-only'], {
 			stdio: 'inherit',
 			shell: true,
@@ -87,12 +97,11 @@ async function main() {
 		// ==========================================
 		// CHẾ ĐỘ 3: LOCALHOST WEB DASHBOARD
 		// ==========================================
-		console.log(chalk.bold.magenta('\n🌐 Khởi chạy chế độ [3] Localhost Web Control...'));
+		console.log(chalk.hex('#00D26A').bold('\n[MODE 3: LOCALHOST WEB DASHBOARD INITIALIZING]'));
 		const port = process.env.PORT || '3000';
 		const targetUrl = `http://localhost:${port}`;
-		console.log(chalk.cyan(`🚀 Đang khởi động Web Dashboard tại: ${chalk.bold.underline(targetUrl)}`));
+		console.log(chalk.hex('#94A3B8')(`[NETWORK] Target Web Interface: ${chalk.hex('#00F0FF').underline(targetUrl)}`));
 
-		// Check if web-dashboard or python-service exists
 		const webDir = path.resolve(process.cwd(), 'web-dashboard');
 		let runner: any;
 		if (fs.existsSync(webDir)) {
@@ -102,7 +111,6 @@ async function main() {
 				shell: true,
 			});
 		} else {
-			// Fallback: spawn main bot in headless mode
 			runner = spawn('npx', ['tsx', 'bot.ts', '--headless'], {
 				stdio: 'inherit',
 				shell: true,
@@ -110,7 +118,7 @@ async function main() {
 		}
 
 		setTimeout(() => {
-			console.log(chalk.green(`\n✨ Đang tự động mở trình duyệt đến ${targetUrl}...`));
+			console.log(chalk.hex('#00D26A')(`[DISPATCH] Opening default web browser at ${targetUrl}...`));
 			openBrowser(targetUrl);
 		}, 2500);
 
@@ -119,20 +127,20 @@ async function main() {
 		// ==========================================
 		// CHẾ ĐỘ 2: TERMINAL INTERACTIVE TUI
 		// ==========================================
-		console.log(chalk.bold.cyan('\n🖥️  Khởi chạy chế độ [2] Terminal Interactive Dashboard...'));
+		console.log(chalk.hex('#00F0FF').bold('\n[MODE 2: TERMINAL INTERACTIVE TUI INITIALIZING]'));
 		let userToken = process.env.TOKEN?.trim();
 
 		if (!userToken || userToken === 'your_discord_token_here' || userToken === 'your_discord_user_token') {
-			console.log(chalk.yellow('\nChưa phát hiện Discord User TOKEN trong file .env.'));
-			userToken = await promptUser(chalk.bold.yellow('👉 Nhập Discord User Token của bạn để bắt đầu cày Quests: '));
+			console.log(chalk.hex('#F59E0B')('[CONFIG] User TOKEN not detected in environment.'));
+			userToken = await promptUser(chalk.hex('#00F0FF')('▸ Enter Discord User Token to authenticate: '));
 			if (!userToken) {
-				console.log(chalk.red('❌ Token không được để trống!'));
+				console.log(chalk.hex('#EF4444')('[ERROR] User token is required.'));
 				process.exit(1);
 			}
 			process.env.TOKEN = userToken;
 		}
 
-		console.log(chalk.green('✔ Đã nạp User Token. Đang tải bảng điều khiển TUI...'));
+		console.log(chalk.hex('#00D26A')('[OK] User authenticated. Initializing TUI telemetry console...'));
 		const tuiProcess = spawn('npx', ['tsx', 'bot.ts'], {
 			stdio: 'inherit',
 			shell: true,
@@ -143,6 +151,6 @@ async function main() {
 }
 
 main().catch((err) => {
-	console.error(chalk.red('\n❌ Lỗi khởi chạy:'), err);
+	console.error(chalk.hex('#EF4444')('\n[FATAL] Startup failure:'), err);
 	process.exit(1);
 });

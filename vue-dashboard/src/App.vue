@@ -3,65 +3,66 @@
     <!-- Header Hero Banner -->
     <header class="hero-banner">
       <div>
+        <div class="brand-pretitle">[CORE SYSTEM // V3.2.0]</div>
         <h1 class="brand-title">
-          <span>⚡</span> Auto Hyper - Farm Orb
-          <span class="badge-edition">Vue 3 / Vite</span>
+          <span class="highlight">Auto Hyper - Farm Orb</span>
+          <span class="badge-edition">VUE 3 // VITE</span>
         </h1>
         <p class="brand-subtitle">
-          High-Speed Mission Control & Markterence Dummy Game Engine Integration
+          Next-Gen Mission Control & Markterence Native Dummy Process Integration
         </p>
       </div>
 
       <div class="connection-status">
-        <div class="sub-text">Native Subsystems</div>
+        <div class="sub-text">SUBSYSTEM STATUS</div>
         <div class="online-indicator">
-          ● ONLINE | C++ / C# / Rust / Go Active
+          ● ONLINE // C++ / C# / RUST / GO ACTIVE
         </div>
       </div>
     </header>
 
     <!-- Notification Toast -->
     <div v-if="toastMessage" class="toast-banner">
-      <span>✨</span> {{ toastMessage }}
+      <span class="toast-tag">[TELEMETRY]</span> {{ toastMessage }}
     </div>
 
     <!-- Quick Stats Grid -->
     <section class="stats-grid">
       <div class="stat-card">
-        <div class="stat-label">🔮 Total Discord Orbs</div>
+        <div class="stat-label">[METRIC] Total Discord Orbs</div>
         <div class="stat-value neon-cyan">{{ orbsCount.toLocaleString() }}</div>
-        <div class="stat-meta">Claimed today: +{{ claimedToday }} Orbs</div>
+        <div class="stat-meta">Daily accumulation: +{{ claimedToday }} Orbs</div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-label">⚔️ Active Missions</div>
+        <div class="stat-label">[PIPELINE] Active Missions</div>
         <div class="stat-value neon-emerald">{{ farmingCount }}</div>
         <div class="stat-meta">Total detectable quests: {{ quests.length }}</div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-label">🛡️ Dual-Stack Proxy Tunnel</div>
+        <div class="stat-label">[ROUTING] Dual-Stack Proxy Tunnel</div>
         <div class="stat-value proxy-text">{{ proxyEndpoint }}</div>
-        <div class="stat-meta text-cyan">IPv4 / IPv6 Remote DNS Safe</div>
+        <div class="stat-meta text-cyan">IPv4 / IPv6 Remote DNS Verified</div>
       </div>
     </section>
 
     <!-- 1-Click Action Buttons -->
     <section class="actions-bar">
       <button class="btn btn-primary" @click="handleAutoFarmAll">
-        ⚡ Auto Farm All
+        [+] Auto Farm All
       </button>
       <button class="btn btn-success" @click="handleClaimAll">
-        🎁 Claim All Rewards
+        [*] Claim All Rewards
       </button>
       <button class="btn btn-secondary" @click="handleRotateProxy">
-        🔄 Rotate Proxy
+        [~] Rotate Proxy
       </button>
       <button class="btn btn-special" @click="handleLaunchMarkterence">
-        🎮 Launch Markterence Dummy Sleeper
+        [>] Launch Markterence Dummy Sleeper
       </button>
       <button class="btn btn-secondary" @click="handleRescanHidden">
-        🔍 Scan Hidden Quests
+        [?] Scan Hidden Quests
       </button>
     </section>
 
@@ -69,7 +70,7 @@
     <section class="quests-section">
       <div class="section-header">
         <h2 class="section-title">Active Discord Quests Matrix</h2>
-        <div class="sub-text">Continuous Heartbeat Sync & Process Detection</div>
+        <div class="sub-text">CONTINUOUS HEARTBEAT & PROCESS DETECTION</div>
       </div>
 
       <div class="quests-grid">
@@ -82,7 +83,7 @@
           </div>
 
           <div class="quest-mode">
-            Mode: <strong>{{ q.task_type }}</strong> • App ID: <code>{{ q.app_id }}</code>
+            MODE: <strong>{{ q.task_type }}</strong> • APP ID: <code>{{ q.app_id }}</code>
           </div>
 
           <!-- Progress Bar -->
@@ -102,7 +103,7 @@
 
           <!-- Rewards Box -->
           <div class="rewards-box">
-            <span class="orbs-pill">🔮 +{{ q.reward_orbs }} Orbs</span>
+            <span class="orbs-pill">+{{ q.reward_orbs }} Orbs</span>
             <span class="deco-text">{{ q.reward_deco }}</span>
           </div>
         </div>
@@ -204,7 +205,7 @@ function handleAutoFarmAll() {
   quests.value.forEach((q) => {
     if (q.status === 'READY') q.status = 'FARMING';
   });
-  showToast('🚀 Auto Farm launched across all eligible quests!');
+  showToast('Auto Farm pipeline activated across all eligible tasks.');
 }
 
 function handleClaimAll() {
@@ -218,23 +219,23 @@ function handleClaimAll() {
   if (earned > 0) {
     orbsCount.value += earned;
     claimedToday.value += earned;
-    showToast(`🎁 Claimed ${earned} Orbs & Avatar Decorations!`);
+    showToast(`Claimed +${earned} Discord Orbs and inventory rewards.`);
   } else {
-    showToast('ℹ️ No completed quests ready to claim.');
+    showToast('No completed tasks ready to claim.');
   }
 }
 
 function handleRotateProxy() {
   proxyEndpoint.value = '192.168.1.100:9050 (IPv6 /64 Rotated)';
-  showToast('🔄 Dual-Stack Proxy pool rotated successfully!');
+  showToast('Dual-Stack Proxy pool rotated successfully.');
 }
 
 function handleLaunchMarkterence() {
-  showToast('🎮 Markterence Dummy Process Sleeper & Discord Named Pipe Handshake triggered!');
+  showToast('Markterence Dummy Process Sleeper & Discord Named Pipe Handshake triggered.');
 }
 
 function handleRescanHidden() {
-  showToast('🔍 Hidden Quests Scanner finished: 1 new quest discovered!');
+  showToast('Hidden Quests Scanner probe completed: 1 unlisted quest discovered.');
   quests.value.unshift({
     id: `quest_hidden_${Date.now()}`,
     app_id: '1142517596001030206',
@@ -256,19 +257,29 @@ function handleRescanHidden() {
   margin: 0 auto;
   padding: 32px 20px 60px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #F3F4F6;
+  color: #F8FAFC;
 }
 
 .hero-banner {
-  background: linear-gradient(135deg, rgba(88, 101, 242, 0.22) 0%, rgba(0, 240, 255, 0.12) 100%);
-  border: 1px solid rgba(88, 101, 242, 0.3);
-  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(13, 17, 26, 0.95) 0%, rgba(19, 26, 40, 0.98) 100%);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  border-left: 4px solid #00F0FF;
+  border-radius: 12px;
   padding: 24px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 28px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.brand-pretitle {
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: #00F0FF;
+  font-weight: 700;
+  margin-bottom: 4px;
 }
 
 .brand-title {
@@ -277,94 +288,115 @@ function handleRescanHidden() {
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: linear-gradient(90deg, #FFF, #00F0FF);
+  gap: 12px;
+}
+
+.brand-title .highlight {
+  background: linear-gradient(90deg, #FFFFFF, #00F0FF);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .badge-edition {
-  font-size: 0.8rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
   font-weight: 700;
   padding: 3px 8px;
-  border-radius: 6px;
-  background: #00F0FF;
-  color: #07090e;
-  -webkit-text-fill-color: #07090e;
+  border-radius: 4px;
+  background: rgba(0, 240, 255, 0.15);
+  color: #00F0FF;
+  border: 1px solid #00F0FF;
 }
 
 .brand-subtitle {
-  color: #9CA3AF;
-  font-size: 0.95rem;
+  color: #94A3B8;
+  font-size: 0.9rem;
   margin-top: 6px;
+  font-family: ui-monospace, monospace;
 }
 
 .sub-text {
-  font-size: 0.82rem;
-  color: #9CA3AF;
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: #64748B;
+  letter-spacing: 1px;
 }
 
 .online-indicator {
   color: #00D26A;
+  font-family: ui-monospace, monospace;
   font-weight: 700;
   margin-top: 4px;
+  font-size: 0.85rem;
 }
 
 .toast-banner {
-  background: rgba(88, 101, 242, 0.9);
-  padding: 12px 20px;
-  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid #00F0FF;
+  padding: 12px 18px;
+  border-radius: 6px;
   margin-bottom: 24px;
-  font-weight: 600;
-  box-shadow: 0 4px 16px rgba(88, 101, 242, 0.5);
+  font-family: ui-monospace, monospace;
+  font-size: 0.88rem;
+  box-shadow: 0 4px 18px rgba(0, 240, 255, 0.15);
+}
+
+.toast-tag {
+  color: #00F0FF;
+  font-weight: 700;
+  margin-right: 6px;
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+  gap: 18px;
   margin-bottom: 30px;
 }
 
 .stat-card {
-  background: rgba(18, 24, 38, 0.75);
-  border: 1px solid rgba(88, 101, 242, 0.25);
-  border-radius: 12px;
+  background: rgba(13, 17, 26, 0.85);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  border-radius: 8px;
   padding: 22px;
   backdrop-filter: blur(10px);
 }
 
 .stat-label {
-  font-size: 0.85rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  color: #9CA3AF;
-  font-weight: 600;
+  color: #64748B;
+  font-weight: 700;
+  letter-spacing: 1.5px;
 }
 
 .stat-value {
-  font-size: 2.1rem;
+  font-family: ui-monospace, monospace;
+  font-size: 2.2rem;
   font-weight: 800;
   margin-top: 8px;
 }
 
 .stat-value.neon-cyan {
   color: #00F0FF;
-  text-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+  text-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
 }
 
 .stat-value.neon-emerald {
   color: #00D26A;
-  text-shadow: 0 0 12px rgba(0, 210, 106, 0.4);
+  text-shadow: 0 0 14px rgba(0, 210, 106, 0.35);
 }
 
 .stat-value.proxy-text {
-  font-size: 1.1rem;
-  color: #FFF;
+  font-size: 1rem;
+  color: #F8FAFC;
 }
 
 .stat-meta {
-  font-size: 0.82rem;
-  color: #9CA3AF;
+  font-family: ui-monospace, monospace;
+  font-size: 0.8rem;
+  color: #94A3B8;
   margin-top: 6px;
 }
 
@@ -380,13 +412,15 @@ function handleRescanHidden() {
 }
 
 .btn {
-  padding: 12px 20px;
-  font-size: 0.92rem;
+  padding: 10px 18px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
   font-weight: 700;
-  border-radius: 8px;
-  border: none;
+  border-radius: 4px;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease-in-out;
+  text-transform: uppercase;
 }
 
 .btn-primary {
@@ -396,13 +430,13 @@ function handleRescanHidden() {
 
 .btn-success {
   background: #00D26A;
-  color: #07090e;
+  color: #06080D;
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.08);
-  color: #FFF;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(51, 65, 85, 0.5);
+  color: #F8FAFC;
 }
 
 .btn-special {
@@ -411,7 +445,7 @@ function handleRescanHidden() {
 }
 
 .btn:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   filter: brightness(1.1);
 }
 
@@ -419,24 +453,26 @@ function handleRescanHidden() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .section-title {
-  font-size: 1.3rem;
+  font-family: ui-monospace, monospace;
+  font-size: 1.15rem;
   font-weight: 700;
+  letter-spacing: 1px;
 }
 
 .quests-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 20px;
 }
 
 .quest-card {
-  background: rgba(18, 24, 38, 0.75);
-  border: 1px solid rgba(88, 101, 242, 0.25);
-  border-radius: 12px;
+  background: rgba(13, 17, 26, 0.85);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  border-radius: 8px;
   padding: 20px;
 }
 
@@ -448,45 +484,48 @@ function handleRescanHidden() {
 }
 
 .quest-name {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   margin: 0;
+  color: #F8FAFC;
 }
 
 .badge {
-  font-size: 0.72rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.7rem;
   font-weight: 700;
   padding: 3px 8px;
-  border-radius: 999px;
+  border-radius: 4px;
   text-transform: uppercase;
 }
 
 .badge-farming {
-  background: rgba(0, 240, 255, 0.15);
+  background: rgba(0, 240, 255, 0.1);
   color: #00F0FF;
   border: 1px solid #00F0FF;
 }
 
 .badge-completed {
-  background: rgba(0, 210, 106, 0.15);
+  background: rgba(0, 210, 106, 0.1);
   color: #00D26A;
   border: 1px solid #00D26A;
 }
 
 .badge-ready {
-  background: rgba(254, 231, 92, 0.15);
-  color: #FEE75C;
-  border: 1px solid #FEE75C;
+  background: rgba(245, 158, 11, 0.1);
+  color: #F59E0B;
+  border: 1px solid #F59E0B;
 }
 
 .badge-claimed {
-  background: rgba(157, 0, 255, 0.15);
+  background: rgba(157, 0, 255, 0.1);
   color: #9D00FF;
   border: 1px solid #9D00FF;
 }
 
 .quest-mode {
-  font-size: 0.82rem;
-  color: #9CA3AF;
+  font-family: ui-monospace, monospace;
+  font-size: 0.8rem;
+  color: #94A3B8;
   margin-bottom: 16px;
 }
 
@@ -497,23 +536,24 @@ function handleRescanHidden() {
 .progress-labels {
   display: flex;
   justify-content: space-between;
+  font-family: ui-monospace, monospace;
   font-size: 0.8rem;
-  color: #9CA3AF;
+  color: #64748B;
   margin-bottom: 6px;
 }
 
 .progress-track {
   width: 100%;
-  height: 8px;
+  height: 6px;
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #5865F2, #00F0FF);
-  border-radius: 999px;
+  border-radius: 4px;
   transition: width 0.3s ease;
 }
 
@@ -522,13 +562,15 @@ function handleRescanHidden() {
 }
 
 .rewards-box {
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.3);
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: 4px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.85rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.82rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .orbs-pill {
@@ -537,6 +579,6 @@ function handleRescanHidden() {
 }
 
 .deco-text {
-  color: #9CA3AF;
+  color: #94A3B8;
 }
 </style>
