@@ -122,8 +122,10 @@ func sendHeartbeat(client *http.Client, apiURL string, questID string, token str
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "Discord-Client/v250 (Desktop; Windows 11)")
-	if token != "" {
-		req.Header.Set("Authorization", token)
+	cleanToken := strings.Trim(token, "\"' ")
+	cleanToken = strings.TrimPrefix(cleanToken, "Bot ")
+	if cleanToken != "" {
+		req.Header.Set("Authorization", cleanToken)
 	}
 
 	resp, err := client.Do(req)

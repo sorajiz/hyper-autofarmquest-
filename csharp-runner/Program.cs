@@ -96,6 +96,9 @@ namespace HyperQuestRunner
                     });
                     await SendIpcFrameAsync(pipe, 1, activity);
                     Console.WriteLine($"📡 [Discord IPC] SET_ACTIVITY broadcast active!");
+
+                    // Keep pipe connection alive so Discord Desktop maintains Rich Presence
+                    await Task.Delay(durationSeconds * 1000);
                 }
                 catch
                 {

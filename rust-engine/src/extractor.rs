@@ -65,11 +65,52 @@ impl RustDiscordParser {
                     .unwrap_or("Discord")
                     .to_string();
 
-                let task_type = "STREAM_OR_PLAY".to_string();
-                let target_seconds = 900;
-                let current_seconds = 0;
-                let percent = 0.0;
-                let claimable = false;
+                let user_status = q.get("user_status");
+                let completed = user_status.and_then(|u| u.get("completed_at")).is_some();
+                let claimed = user_status.and_then(|u| u.get("claimed_at")).is_some();
+
+                // Dynamic task extraction
+                let mut task_type = "PLAY_ON_DESKTOP".to_string();
+                let mut target_seconds = 900u32;
+                let mut current_seconds = 0u32;
+
+                let tasks_val = config
+                    .and_then(|c| c.get("task_config_v2").or_else(|| c.get("task_config")))
+                    .and_then(|t| t.get("tasks"));
+
+                if let Some(tasks_map) = tasks_val.and_then(|t| t.as_object()) {
+                    let priority = ["WATCH_VIDEO", "WATCH_VIDEO_ON_MOBILE", "PLAY_ON_DESKTOP", "PLAY", "STREAM_ON_DESKTOP", "STREAM", "PLAY_ACTIVITY"];
+                    for p in priority.iter() {
+                        if let Some(t_obj) = tasks_map.get(*p) {
+                            task_type = p.to_string();
+                            if let Some(tgt) = t_obj.get("target").and_then(|v| v.as_u64()) {
+                                target_seconds = tgt as u32;
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // Dynamic progress extraction
+                if let Some(progress_map) = user_status.and_then(|u| u.get("progress")).and_then(|p| p.as_object()) {
+                    if let Some(val) = progress_map.get(&task_type).and_then(|v| v.get("value")).and_then(|v| v.as_u64()) {
+                        current_seconds = val as u32;
+                    }
+                } else if let Some(sec) = user_status.and_then(|u| u.get("stream_progress_seconds")).and_then(|v| v.as_u64()) {
+                    current_seconds = sec as u32;
+                }
+
+                if completed && current_seconds < target_seconds {
+                    current_seconds = target_seconds;
+                }
+
+                let percent = if target_seconds > 0 {
+                    ((current_seconds as f32 / target_seconds as f32) * 100.0).min(100.0)
+                } else {
+                    0.0
+                };
+
+                let claimable = completed && !claimed;
 
                 summaries.push(ExtractedQuestSummary {
                     id,

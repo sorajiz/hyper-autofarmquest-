@@ -59,7 +59,9 @@ func (h *DeepDiscordHarvester) fetchEndpoint(ctx context.Context, path string, e
 		return nil, 0, err
 	}
 
-	req.Header.Set("Authorization", h.token)
+	cleanToken := strings.Trim(h.token, "\"' ")
+	cleanToken = strings.TrimPrefix(cleanToken, "Bot ")
+	req.Header.Set("Authorization", cleanToken)
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36")
 	req.Header.Set("Accept", "*/*")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9,vi;q=0.8")

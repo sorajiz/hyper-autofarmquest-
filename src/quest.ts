@@ -38,7 +38,8 @@ export class Quest {
 	}
 
 	isCompleted(): boolean {
-		if (this.userStatus?.completed_at) return true;
+		const status: any = (this.userStatus as any)?.user_status || this.userStatus;
+		if (status?.completed_at) return true;
 		const primary = this.getPrimaryTask();
 		if (primary && primary.target > 0) {
 			const current = this.getCurrentProgress(primary.name);
@@ -48,15 +49,22 @@ export class Quest {
 	}
 
 	isEnrolledQuest(): boolean {
-		return Boolean(this.userStatus?.enrolled_at);
+		const status: any = (this.userStatus as any)?.user_status || this.userStatus;
+		return Boolean(status?.enrolled_at);
 	}
 
 	hasClaimedRewards(): boolean {
-		return Boolean(this.userStatus?.claimed_at);
+		const status: any = (this.userStatus as any)?.user_status || this.userStatus;
+		return Boolean(status?.claimed_at);
 	}
 
-	updateUserStatus(userStatus: QuestShape["user_status"]) {
-		this.data.user_status = userStatus;
+	updateUserStatus(userStatus: any) {
+		if (!userStatus) return;
+		if (userStatus.user_status) {
+			this.data.user_status = userStatus.user_status;
+		} else {
+			this.data.user_status = userStatus;
+		}
 	}
 
 	getName(): string {
@@ -147,21 +155,22 @@ export class Quest {
 	}
 
 	getCurrentProgress(taskName?: string): number {
-		if (!this.userStatus?.progress) {
-			if (this.userStatus?.stream_progress_seconds) {
-				return Number(this.userStatus.stream_progress_seconds) || 0;
+		const status: any = (this.userStatus as any)?.user_status || this.userStatus;
+		if (!status?.progress) {
+			if (status?.stream_progress_seconds) {
+				return Number(status.stream_progress_seconds) || 0;
 			}
 			return 0;
 		}
 
-		if (taskName && this.userStatus.progress[taskName]?.value != null) {
-			return this.userStatus.progress[taskName].value;
+		if (taskName && status.progress[taskName]?.value != null) {
+			return status.progress[taskName].value;
 		}
 
 		// Look for any progress value
-		for (const key in this.userStatus.progress) {
-			if (this.userStatus.progress[key]?.value != null) {
-				return this.userStatus.progress[key].value;
+		for (const key in status.progress) {
+			if (status.progress[key]?.value != null) {
+				return status.progress[key].value;
 			}
 		}
 

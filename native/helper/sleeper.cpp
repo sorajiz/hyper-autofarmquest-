@@ -14,8 +14,8 @@
  * Discord IPC Named Pipe Connector & Markterence Dummy Game Sleeper
  */
 
-void SendNamedPipeActivity(const std::string& appId, const std::string& gameName) {
 #ifdef _WIN32
+HANDLE SendNamedPipeActivity(const std::string& appId, const std::string& gameName) {
     LPCSTR pipeName = "\\\\.\\pipe\\discord-ipc-0";
     HANDLE hPipe = CreateFileA(pipeName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
     if (hPipe != INVALID_HANDLE_VALUE) {
@@ -48,14 +48,17 @@ void SendNamedPipeActivity(const std::string& appId, const std::string& gameName
         FlushFileBuffers(hPipe);
 
         std::cout << "📡 [C++ Helper] Dispatched SET_ACTIVITY frame to Discord Desktop!" << std::endl;
-        CloseHandle(hPipe);
+        return hPipe;
     } else {
         std::cout << "ℹ️  [C++ Helper] Discord Desktop not running locally. Continuing background simulation." << std::endl;
+        return INVALID_HANDLE_VALUE;
     }
-#else
-    std::cout << "ℹ️  [C++ Helper] Non-Windows environment. Running sleeper simulation." << std::endl;
-#endif
 }
+#else
+void SendNamedPipeActivity(const std::string& appId, const std::string& gameName) {
+    std::cout << "ℹ️  [C++ Helper] Non-Windows environment. Running sleeper simulation." << std::endl;
+}
+#endif
 
 int main(int argc, char* argv[]) {
     std::string appId = "1098679090623692880";
@@ -80,7 +83,11 @@ int main(int argc, char* argv[]) {
     std::cout << "⏱  Duration      : " << durationSeconds << " seconds" << std::endl;
 
     // Connect and notify Discord IPC
+#ifdef _WIN32
+    HANDLE hPipe = SendNamedPipeActivity(appId, gameName);
+#else
     SendNamedPipeActivity(appId, gameName);
+#endif
 
     // Run game simulation
     int elapsed = 0;
@@ -91,6 +98,12 @@ int main(int argc, char* argv[]) {
         std::cout << "⏱ [C++ Helper] Progress: " << elapsed << "/" << durationSeconds 
                   << "s (" << (elapsed * 100) / durationSeconds << "%)" << std::endl;
     }
+
+#ifdef _WIN32
+    if (hPipe != INVALID_HANDLE_VALUE) {
+        CloseHandle(hPipe);
+    }
+#endif
 
     std::cout << "✨ [C++ Helper] Activity simulation completed successfully." << std::endl;
     return 0;

@@ -228,15 +228,20 @@ export class QuestManager implements Iterable<Quest> {
 
 	async sendHeartbeat(quest: Quest, terminal: boolean = false): Promise<any> {
 		const appId = quest.getApplicationId();
-		if (!appId) return null;
+		const primary = quest.getPrimaryTask();
+		const body: Record<string, any> = { terminal };
+
+		if (appId) {
+			body.application_id = appId;
+		}
+		if (primary?.name === 'PLAY_ACTIVITY' || primary?.name === 'STREAM_ON_DESKTOP' || primary?.name === 'STREAM') {
+			body.stream_key = 'call:0:1';
+		}
 
 		try {
 			const res = await GlobalTraffic.enqueue(() =>
 				this.client.rest.post(`/quests/${quest.id}/heartbeat`, {
-					body: {
-						application_id: appId,
-						terminal,
-					},
+					body,
 				}),
 			);
 			if (res) {
