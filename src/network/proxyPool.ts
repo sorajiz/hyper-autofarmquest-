@@ -66,6 +66,18 @@ export class ProxyPoolManager {
 		return healthy[this.currentIndex];
 	}
 
+	/**
+	 * Handles HTTP 429 Rate Limits by penalizing the active proxy and switching immediately.
+	 */
+	public handleRateLimit(url?: string, retryAfterMs: number = 30000): ProxyEntry | null {
+		if (url) {
+			this.markBad(url, retryAfterMs);
+		} else {
+			this.rotate();
+		}
+		return this.getHealthyProxy();
+	}
+
 	public markBad(url: string, durationMs: number = 60000): void {
 		const target = this.proxies.find((p) => p.url === url);
 		if (target) {
@@ -73,6 +85,14 @@ export class ProxyPoolManager {
 			target.isBad = true;
 			target.badUntil = Date.now() + durationMs;
 			this.rotate();
+		}
+	}
+
+	public recordSuccess(url: string): void {
+		const target = this.proxies.find((p) => p.url === url);
+		if (target) {
+			target.failCount = 0;
+			target.isBad = false;
 		}
 	}
 

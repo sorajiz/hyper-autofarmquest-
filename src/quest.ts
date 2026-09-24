@@ -91,20 +91,26 @@ export class Quest {
 
 	getPrimaryTask(): { name: string; target: number; applicationId: string; applicationName: string } | null {
 		const tasks = this.getTasksMap();
-		const CONSOLE_KEYS = new Set(['PLAY_ON_XBOX', 'PLAY_ON_PLAYSTATION']);
 		const keys = Object.keys(tasks);
 
-		if (keys.length > 0 && keys.every((k) => CONSOLE_KEYS.has(k))) {
-			return null;
-		}
-
-		// Thứ tự ưu tiên mô phỏng từ nyxxbit: video nhanh nhất -> game desktop -> activity -> stream
+		// Comprehensive priority order from A-Z:
+		// 1. Instant Video quests (fastest completion)
+		// 2. Desktop Game / Activity play quests
+		// 3. Streaming quests
+		// 4. Console play quests (Xbox, PlayStation)
+		// 5. Any other dynamic or unlisted task type
 		const priorityList = [
 			'WATCH_VIDEO',
 			'WATCH_VIDEO_ON_MOBILE',
 			'PLAY_ON_DESKTOP',
+			'PLAY',
 			'PLAY_ACTIVITY',
 			'STREAM_ON_DESKTOP',
+			'STREAM',
+			'PLAY_ON_XBOX',
+			'PLAY_ON_PLAYSTATION',
+			'WATCH_STREAM',
+			'STREAM_TO_FRIENDS',
 		];
 
 		let foundName: string | null = null;
@@ -115,9 +121,8 @@ export class Quest {
 			}
 		}
 
-		if (!foundName) {
-			const nonConsole = keys.filter((k) => !CONSOLE_KEYS.has(k) && k !== 'ACHIEVEMENT_IN_GAME');
-			if (nonConsole.length > 0) foundName = nonConsole[0];
+		if (!foundName && keys.length > 0) {
+			foundName = keys[0];
 		}
 
 		if (!foundName) {

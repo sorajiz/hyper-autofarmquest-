@@ -4,8 +4,9 @@
   "description": "Discord Quest Auto Farm & Auto Claim Bot with Terminal Dashboard",
   "main": "bot.ts",
   "scripts": {
-    "start": "tsx --env-file=.env bot.ts",
-    "dev": "tsx bot.ts",
+    "start": "tsx --env-file=.env start.ts",
+    "bot": "tsx --env-file=.env bot.ts",
+    "dev": "tsx start.ts",
     "typecheck": "tsc --noEmit",
     "build:native": "node-gyp rebuild",
     "test": "tsx tests/runner.ts"

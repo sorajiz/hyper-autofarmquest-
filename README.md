@@ -62,9 +62,49 @@ hyper-autofarmquest-/
 
 ---
 
-## 🚀 Khởi Chạy Nhanh (Quick Start)
+## 🚀 Khởi Chạy 1 Lệnh Duy Nhất (1-Click Universal Launcher)
 
-### 1. Khởi chạy toàn bộ hệ sinh thái bằng Docker Compose
+Chỉ cần chạy **1 lệnh duy nhất** để hệ thống vừa tự động tải thư viện, vừa nạp module, vừa hiển thị menu 3 chế độ lựa chọn:
+
+### Trên Windows:
+Nhấp đúp chuột vào file `start.bat` hoặc chạy:
+```cmd
+start.bat
+```
+
+### Trên Linux / macOS:
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+### Qua Node.js / NPM:
+```bash
+npm start
+```
+
+---
+
+### 🎛️ Menu Lựa Chọn 3 Chế Độ Tự Động (Auto-Adaptive):
+
+Khi chạy lệnh trên, màn hình Terminal sẽ hiện Banner nghệ thuật ASCII `Auto Hyper - Farm Orb` cùng 3 chế độ:
+
+1. **`[1] 🤖 Discord Remote Bot`**:
+   - Nếu chưa cài Bot Token, Terminal sẽ yêu cầu nhập trực tiếp Bot Token của bạn.
+   - Khởi động Bot Discord điều khiển từ xa qua Slash Commands (`/status`, `/farm`, `/claim`, `/proxy`) với chuẩn **Discord Components V2** (Container + Buttons).
+
+2. **`[2] 🖥️  Terminal Interactive Dashboard`**:
+   - Hiển thị Banner ASCII `Auto Hyper - Farm Orb`.
+   - Nếu chưa nhập User Token trong `.env`, Terminal sẽ xuất hiện hộp nhập `👉 Nhập Discord User Token của bạn:` để bắt đầu ngay lập tức.
+   - Bảng TUI real-time, phím tắt `r` (rescan), `p` (rotate proxy), `q` (thoát an toàn).
+
+3. **`[3] 🌐 Localhost Web Dashboard (Tự Thích Nghi)`**:
+   - Tự động kiểm tra môi trường PC, khởi động Web Dashboard (Next.js / Vue 3 / Python API) tại `http://localhost:3000`.
+   - **Tự động mở trình duyệt mặc định** của bạn ngay lập tức!
+
+---
+
+### 3. Khởi chạy bằng Docker Compose (Đa vi dịch vụ)
 
 ```bash
 docker compose up -d
@@ -76,7 +116,7 @@ docker compose up -d
 
 ---
 
-### 2. Khởi chạy cục bộ từng thành phần
+### 4. Khởi chạy cục bộ từng thành phần
 
 #### C# .NET 8 Runner
 ```bash
