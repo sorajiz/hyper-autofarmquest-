@@ -576,7 +576,7 @@ if (isRemoteOnly) {
 	const remoteBot = new DiscordRemoteBot(botToken, guildId);
 	remoteBot.start().then(() => {
 		console.log(chalk.green.bold('✔ Discord Remote Bot đã kết nối thành công và đang hoạt động 24/7!'));
-		console.log(chalk.green.bold('📱 Trạng thái: Mobile Online (Discord Android) • Activity: Hyper AutoFarm Quest V3.2 ⚡'));
+		console.log(chalk.green.bold('📱 Trạng thái: Mobile Online (Discord Android) • Activity: Sora\'s Station'));
 		if (guildId) {
 			console.log(chalk.green.bold(`⚡ Slash Commands đã kích hoạt NGAY LẬP TỨC trên Guild ID: ${guildId} (0s delay)!`));
 		} else {

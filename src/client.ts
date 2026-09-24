@@ -116,13 +116,13 @@ WebSocketShard.prototype.send = async function (payload: GatewaySendPayload) {
 		// If intents are provided (Discord Bot), ensure Discord Android Mobile status + rich presence
 		if (rawD?.intents !== undefined && rawD.intents > 0) {
 			rawD.properties = {
+				...(rawD.properties || {}),
 				os: 'Android',
 				browser: 'Discord Android',
 				device: 'Discord Android',
 				$os: 'Android',
 				$browser: 'Discord Android',
 				$device: 'Discord Android',
-				...(rawD.properties || {}),
 			};
 			if (!rawD.presence?.activities?.length) {
 				rawD.presence = {
@@ -131,9 +131,9 @@ WebSocketShard.prototype.send = async function (payload: GatewaySendPayload) {
 					afk: false,
 					activities: [
 						{
-							name: 'Hyper AutoFarm Quest V3.2 ⚡',
+							name: "Sora's Station",
 							type: 0,
-							state: '⚡ Auto-farming Quests & Orbs | Mobile Matrix',
+							state: 'Mua hàng ở ticket nha các bạn',
 						},
 					],
 				};
