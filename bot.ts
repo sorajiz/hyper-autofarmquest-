@@ -8,6 +8,7 @@ import { renderBanner } from './src/ui/banner';
 import { TUIDashboard } from './src/ui/tui';
 import { DynamicNativeLoader } from './src/native/nativeLoader';
 import { GlobalProxyPool } from './src/network/proxyPool';
+import { GlobalRemoteBot } from './src/remote/discordBot';
 
 const rawToken = process.env.TOKEN || '';
 const token = rawToken.trim().replace(/^["']|["']$/g, '');
@@ -54,6 +55,7 @@ export async function gracefulShutdown(reason: string = 'Người dùng yêu c�
 	GlobalTraffic.shutdown();
 
 	console.log(chalk.yellow(`\n\n🛑 Đang dừng bot an toàn (${reason})...`));
+	await GlobalRemoteBot.stop();
 	const manager = client.questManager;
 	if (manager) {
 		const running = activeStates.filter((s) => s.status === 'RUNNING');
@@ -299,6 +301,11 @@ async function startBot() {
 			);
 			console.log(chalk.yellow('Vui lòng đợi hết thời gian khóa trước khi chạy lại bot.'));
 			return;
+		}
+
+		if (GlobalRemoteBot.isEnabled()) {
+			logActivity('Đang kích hoạt Discord Remote Controller Bot (Slash Commands)...');
+			GlobalRemoteBot.start(manager).catch(() => {});
 		}
 
 		// Tự động nhận thưởng các quest đã hoàn thành trước đó
