@@ -3,6 +3,7 @@ import type { AllQuestsResponse } from './interface';
 import { Quest } from './quest';
 import { GlobalTraffic } from './traffic';
 import { CaptchaPipeline, GlobalCaptchaPipeline } from './security/captcha';
+import { GlobalScanner } from './core/scanner';
 
 export class QuestManager implements Iterable<Quest> {
 	private readonly quests = new Map<string, Quest>();
@@ -310,5 +311,15 @@ export class QuestManager implements Iterable<Quest> {
 		}
 
 		return true;
+	}
+
+	async scanHiddenQuests(): Promise<Quest[]> {
+		const newQuests = await GlobalScanner.scan(this.client);
+		for (const q of newQuests) {
+			if (!this.quests.has(q.id)) {
+				this.quests.set(q.id, q);
+			}
+		}
+		return newQuests;
 	}
 }
