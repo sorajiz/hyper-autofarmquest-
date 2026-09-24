@@ -7,15 +7,36 @@ import { QuestManager } from './questManager';
 import { AllQuestsResponse } from './interface';
 import { Constants } from './constants';
 
-const proxyUrl = process.env.PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
-export const globalDispatcher = proxyUrl ? new ProxyAgent(proxyUrl.trim()) : undefined;
+import { SocksProxyAgent } from 'socks-proxy-agent';
+import { GlobalProxyPool } from './network/proxyPool';
+
+// Initialize proxy pool from environment variables
+const rawProxies = (process.env.PROXIES || process.env.PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || '')
+	.split(',')
+	.map((p) => p.trim())
+	.filter(Boolean);
+
+rawProxies.forEach((p) => GlobalProxyPool.addProxy(p));
+
+export function getActiveDispatcher(): any {
+	const currentProxy = GlobalProxyPool.getHealthyProxy();
+	if (!currentProxy) return undefined;
+
+	if (currentProxy.protocol === 'socks5:') {
+		return new SocksProxyAgent(currentProxy.url);
+	}
+	return new ProxyAgent(currentProxy.url);
+}
+
+export const globalDispatcher = getActiveDispatcher();
 
 async function makeRequest(
 	url: string,
 	init: RequestInit,
 ): Promise<ResponseLike> {
-	if (globalDispatcher) {
-		(init as any).dispatcher = globalDispatcher;
+	const dispatcher = getActiveDispatcher();
+	if (dispatcher) {
+		(init as any).dispatcher = dispatcher;
 	}
 	if (init.headers) {
 		const myHeaders = new Headers(init.headers as any);
