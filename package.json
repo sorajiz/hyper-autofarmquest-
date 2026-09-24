@@ -6,7 +6,9 @@
   "scripts": {
     "start": "tsx --env-file=.env bot.ts",
     "dev": "tsx bot.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:native": "node-gyp rebuild",
+    "test": "tsx tests/runner.ts"
   },
   "keywords": [
     "discord",
@@ -35,10 +37,11 @@
     "@discordjs/core": "^1.1.1",
     "@discordjs/rest": "^2.2.0",
     "@discordjs/ws": "^1.0.2",
-    "discord-api-types": "^0.37.61",
-    "undici": "^6.0.0",
     "chalk": "^4.1.2",
+    "cli-table3": "^0.6.3",
+    "discord-api-types": "^0.37.61",
     "figlet": "^1.7.0",
-    "cli-table3": "^0.6.3"
+    "socks-proxy-agent": "^10.1.0",
+    "undici": "^6.0.0"
   }
 }
