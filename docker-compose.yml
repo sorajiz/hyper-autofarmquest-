@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  ts-core-bot:
+    image: node:20-alpine
+    container_name: hyper-ts-core-bot
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+      - DISCORD_BOT_ID=${DISCORD_BOT_ID}
+    command: sh -c "npm install && npm run build && npm start"
+    restart: unless-stopped
+    networks:
+      - hyper-net
+
+  python-api:
+    image: python:3.12-slim
+    container_name: hyper-python-api
+    working_dir: /app/python-service
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    command: sh -c "pip install --no-cache-dir -r requirements.txt && uvicorn app:app --host 0.0.0.0 --port 8000"
+    restart: unless-stopped
+    networks:
+      - hyper-net
+
+  web-dashboard:
+    image: node:20-alpine
+    container_name: hyper-web-dashboard
+    working_dir: /app/web-dashboard
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - python-api
+    restart: unless-stopped
+    networks:
+      - hyper-net
+
+  go-worker:
+    image: golang:1.21-alpine
+    container_name: hyper-go-worker
+    working_dir: /app/go-worker
+    volumes:
+      - .:/app
+    command: sh -c "go run main.go -api=http://python-api:8000/api -interval=30"
+    depends_on:
+      - python-api
+    restart: unless-stopped
+    networks:
+      - hyper-net
+
+networks:
+  hyper-net:
+    driver: bridge

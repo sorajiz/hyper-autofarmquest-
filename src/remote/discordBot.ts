@@ -2,6 +2,78 @@ import { REST } from '@discordjs/rest';
 import { WebSocketManager } from '@discordjs/ws';
 import { Client } from '@discordjs/core';
 import { QuestManager } from '../questManager';
+import { GlobalProxyPool } from '../network/proxyPool';
+import { GlobalScanner } from '../core/scanner';
+
+export interface StatusData {
+	username?: string;
+	userId?: string;
+	activeQuests?: number;
+	completedQuests?: number;
+	orbsCount?: number;
+	proxyStatus?: string;
+}
+
+export function buildComponentsV2Payload(data: StatusData = {}) {
+	const username = data.username || 'Discord User';
+	const userId = data.userId || 'N/A';
+	const active = data.activeQuests ?? 0;
+	const completed = data.completedQuests ?? 0;
+	const orbs = data.orbsCount ?? 0;
+	const proxy = data.proxyStatus || 'Trực tiếp (Direct)';
+
+	return {
+		flags: 1 << 15, // IS_COMPONENTS_V2 (32768)
+		content: `⭐ **Auto Hyper - Farm Orb** | **Control Center**`,
+		components: [
+			{
+				type: 1, // Action Row / Container component
+				components: [
+					{
+						type: 2, // Button
+						style: 3, // Success (Green)
+						custom_id: 'btn_autofarm',
+						label: '⚡ Auto Farm Tất Cả',
+					},
+					{
+						type: 2, // Button
+						style: 1, // Primary (Blurple)
+						custom_id: 'btn_claim',
+						label: '🎁 Nhận Quà (Claim)',
+					},
+					{
+						type: 2, // Button
+						style: 2, // Secondary (Gray)
+						custom_id: 'btn_rescan',
+						label: '🔍 Quét Nhiệm Vụ Ẩn',
+					},
+					{
+						type: 2, // Button
+						style: 2, // Secondary (Gray)
+						custom_id: 'btn_proxy',
+						label: '🔄 Đổi Proxy',
+					},
+				],
+			},
+		],
+		embeds: [
+			{
+				title: '📊 Bảng Điều Khiển Nhiệm Vụ (Components V2 Dashboard)',
+				color: 0x5865f2,
+				fields: [
+					{ name: '👤 Tài khoản', value: `${username} (${userId})`, inline: true },
+					{ name: '🛡️ Proxy', value: proxy, inline: true },
+					{ name: '🔮 Orbs Thu Hoạch', value: `${orbs} Orbs`, inline: true },
+					{ name: '⚡ Tiến độ Quests', value: `Đang chạy: **${active}** | Đã hoàn tất: **${completed}**`, inline: false },
+				],
+				footer: {
+					text: 'Hyper AutoFarm Quest • Discord Components V2 Engine',
+				},
+				timestamp: new Date().toISOString(),
+			},
+		],
+	};
+}
 
 export class DiscordRemoteBot {
 	private token: string;
@@ -30,14 +102,77 @@ export class DiscordRemoteBot {
 			});
 			this.client = new Client({ rest, gateway: this.ws });
 
-			// Listen for interactions (Slash Commands)
+			// Listen for interactions (Slash Commands & Components V2 Buttons)
 			this.client.on('interactionCreate' as any, async ({ data, api }: any) => {
+				const active = questManager ? questManager.list().filter((q) => !q.isCompleted()).length : 0;
+				const completed = questManager ? questManager.getCompleted().length : 0;
+				const proxyStats = GlobalProxyPool.getStats();
+				const proxyStr = proxyStats.total > 0 ? `Pool: ${proxyStats.healthy}/${proxyStats.total}` : 'Trực tiếp';
+
+				// 1. APPLICATION_COMMAND (Slash Commands: /status, /farm, /claim, /proxy)
 				if (data.type === 2) {
-					// APPLICATION_COMMAND
 					const cmdName = data.data.name;
 					if (cmdName === 'status') {
+						const payload = buildComponentsV2Payload({
+							activeQuests: active,
+							completedQuests: completed,
+							proxyStatus: proxyStr,
+						});
+						await api.interactions.reply(data.id, data.token, payload);
+					} else if (cmdName === 'claim') {
+						if (questManager) {
+							const claimable = questManager.getClaimable();
+							for (const q of claimable) {
+								await questManager.claimQuestReward(q.id);
+							}
+							await api.interactions.reply(data.id, data.token, {
+								content: `🎁 Đã kích hoạt nhận thưởng cho ${claimable.length} nhiệm vụ!`,
+							});
+						}
+					} else if (cmdName === 'proxy') {
+						const next = GlobalProxyPool.rotate();
 						await api.interactions.reply(data.id, data.token, {
-							content: `⚡ **Hyper AutoFarm Quest Status**\n- Nhiệm vụ đang quản lý: ${questManager ? questManager.size : 0}`,
+							content: next ? `🔄 Đã xoay proxy sang: \`${next.url}\`` : '⚠ Chưa cấu hình danh sách proxy.',
+						});
+					}
+				}
+
+				// 2. MESSAGE_COMPONENT (Components V2 Buttons)
+				if (data.type === 3) {
+					const customId = data.data.custom_id;
+					if (customId === 'btn_autofarm') {
+						await api.interactions.reply(data.id, data.token, {
+							content: `⚡ **Lệnh Auto Farm nhận được!** Đang tự động tăng tốc và hoàn thành các nhiệm vụ...`,
+							flags: 64, // Ephemeral
+						});
+					} else if (customId === 'btn_claim') {
+						let count = 0;
+						if (questManager) {
+							const claimable = questManager.getClaimable();
+							count = claimable.length;
+							for (const q of claimable) {
+								await questManager.claimQuestReward(q.id);
+							}
+						}
+						await api.interactions.reply(data.id, data.token, {
+							content: `🎁 **Đã nhận quà thành công:** ${count} phần thưởng đã được gửi vào tài khoản!`,
+							flags: 64,
+						});
+					} else if (customId === 'btn_rescan') {
+						if (questManager) {
+							GlobalScanner.scan(questManager.client).then((found) => {
+								found.forEach((q) => questManager.upsert(q));
+							});
+						}
+						await api.interactions.reply(data.id, data.token, {
+							content: `🔍 **Đang quét nhiệm vụ ẩn** trên Windows, Mac, Android và Console...`,
+							flags: 64,
+						});
+					} else if (customId === 'btn_proxy') {
+						const next = GlobalProxyPool.rotate();
+						await api.interactions.reply(data.id, data.token, {
+							content: next ? `🔄 **Đã xoay proxy:** \`${next.url}\`` : '⚠ Không có proxy dự phòng trong Pool.',
+							flags: 64,
 						});
 					}
 				}
@@ -45,7 +180,7 @@ export class DiscordRemoteBot {
 
 			await this.ws.connect();
 		} catch {
-			// Fail-safe: do not crash the farm bot if remote bot connection fails
+			// Fail-safe: do not crash main bot
 		}
 	}
 
