@@ -7,6 +7,7 @@ import { renderBanner } from './src/ui/banner';
 import { ClientQuest } from './src/client';
 import { UltraDiscordExtractor } from './src/core/ultraExtractor';
 import { TokenValidator } from './src/auth/tokenValidator';
+import { startWebServer } from './src/server/webServer';
 
 const tsxCli = require.resolve('tsx/cli');
 
@@ -142,32 +143,77 @@ async function main() {
 		});
 	} else if (selectedMode === '3') {
 		// ==========================================
-		// CHẾ ĐỘ 3: LOCALHOST WEB DASHBOARD
+		// CHẾ ĐỘ 3: LOCALHOST WEB DASHBOARD (GIỮ NGUYÊN TERMINAL 24/7)
 		// ==========================================
 		console.log(chalk.hex('#00D26A').bold('\n[MODE 3: LOCALHOST WEB DASHBOARD INITIALIZING]'));
-		const port = process.env.PORT || '3000';
-		const targetUrl = `http://localhost:${port}`;
-		console.log(chalk.hex('#94A3B8')(`[NETWORK] Target Web Interface: ${chalk.hex('#00F0FF').underline(targetUrl)}`));
+		const port = Number(process.env.PORT) || 3000;
 
-		const webDir = path.resolve(process.cwd(), 'web-dashboard');
-		const runner = fs.existsSync(webDir)
-			? spawn(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', 'dev'], {
-					cwd: webDir,
-					stdio: 'inherit',
-					shell: true,
-				})
-			: spawn(process.execPath, [tsxCli, 'bot.ts', '--headless'], {
-					stdio: 'inherit',
+		const webInstance = await startWebServer(port);
+
+		console.log(chalk.hex('#00D26A')(`[DISPATCH] Đang khởi chạy và mở trình duyệt tại: ${webInstance.url}...`));
+		openBrowser(webInstance.url);
+
+		// Render persistent terminal matrix
+		console.clear();
+		renderBanner();
+
+		const sepLine = chalk.hex('#1E293B')('─'.repeat(74));
+		console.log(sepLine);
+		console.log(chalk.hex('#00F0FF').bold('  🌐 LOCALHOST WEB SERVER IS LIVE & RUNNING 24/7 (ACTIVE MATRIX)'));
+		console.log(chalk.hex('#64748B')('  Enterprise Polyglot Matrix • Discord Mobile Presence • Zero Downtime'));
+		console.log(sepLine);
+		console.log(`\n  👉 ${chalk.hex('#00D26A').bold('TRUY CẬP WEB DASHBOARD :')} ${chalk.hex('#00F0FF').underline.bold(webInstance.url)}`);
+		console.log(`  📱 ${chalk.hex('#F8FAFC').bold('GATEWAY PRESENCE       :')} ${chalk.hex('#00D26A').bold('🟢 Mobile Active (Discord Android)')}`);
+		console.log(`  🛡️ ${chalk.hex('#F8FAFC').bold('PROXY POOL NETWORK     :')} ${chalk.hex('#5865F2').bold('Dual-Stack IPv4 / IPv6 Active')}`);
+		console.log(`  📡 ${chalk.hex('#F8FAFC').bold('REST & TELEMETRY API   :')} ${chalk.hex('#94A3B8')(`${webInstance.url}/api/status`)}\n`);
+		console.log(sepLine);
+		console.log(chalk.hex('#F1C40F').bold('  [PHÍM TẮT ĐIỀU KHIỂN TRONG TERMINAL]:'));
+		console.log(chalk.hex('#94A3B8')('    • Bấm [o] : Mở lại trang Web Dashboard trên trình duyệt'));
+		console.log(chalk.hex('#94A3B8')('    • Bấm [c] : Xóa màn hình và làm mới bảng điều khiển'));
+		console.log(chalk.hex('#94A3B8')('    • Bấm [q] hoặc [Ctrl+C] : Dừng Web Server an toàn'));
+		console.log(sepLine);
+		console.log(chalk.hex('#00D26A').bold('\n  ✔ TERMINAL ĐƯỢC GIỮ NGUYÊN ĐỂ WEBSITE TIẾP TỤC CHẠY ỔN ĐỊNH LIÊN TỤC!\n'));
+
+		// Keep process and terminal alive indefinitely!
+		if (process.stdin.isTTY && typeof process.stdin.setRawMode === 'function') {
+			try {
+				process.stdin.setRawMode(true);
+				process.stdin.resume();
+				process.stdin.setEncoding('utf8');
+				process.stdin.on('data', (key: string) => {
+					if (key === '\u0003' || key.toLowerCase() === 'q') {
+						console.log(chalk.yellow('\n🛑 Đang dừng Web Server theo yêu cầu...'));
+						webInstance.stop().then(() => {
+							process.exit(0);
+						});
+					} else if (key.toLowerCase() === 'o') {
+						console.log(chalk.cyan(`\n[DISPATCH] Mở lại trình duyệt: ${webInstance.url}`));
+						openBrowser(webInstance.url);
+					} else if (key.toLowerCase() === 'c') {
+						console.clear();
+						renderBanner();
+						console.log(chalk.hex('#00D26A').bold(`\n🌐 Web Server đang chạy tại: ${webInstance.url}`));
+						console.log(chalk.hex('#94A3B8')('Bấm [o] mở lại trình duyệt | Bấm [q] dừng server\n'));
+					}
 				});
+			} catch {}
+		} else {
+			// In non-TTY environments (background / docker / headless), prevent exit
+			setInterval(() => {}, 60000);
+		}
 
-		setTimeout(() => {
-			console.log(chalk.hex('#00D26A')(`[DISPATCH] Opening default web browser at ${targetUrl}...`));
-			openBrowser(targetUrl);
-		}, 2500);
-
-		runner.on('exit', (code: any) => {
-			process.exitCode = code ?? 0;
+		process.on('SIGINT', async () => {
+			console.log(chalk.yellow('\n🛑 Đang dừng Web Server an toàn...'));
+			await webInstance.stop();
+			process.exit(0);
 		});
+		process.on('SIGTERM', async () => {
+			await webInstance.stop();
+			process.exit(0);
+		});
+
+		// Block main() from exiting so terminal stays active
+		await new Promise(() => {});
 	} else if (selectedMode === '4') {
 		// ==========================================
 		// CHẾ ĐỘ 4: ULTRA DEEP API EXTRACTOR & VAULT DUMP

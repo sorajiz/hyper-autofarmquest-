@@ -12,3 +12,9 @@ if not exist "node_modules\" (
 
 echo [Launch] Dang khoi dong Universal Launcher...
 call npm start
+
+echo.
+echo ==============================================================
+echo  He thong da hoan tat. Nhan phim bat ky de thoat terminal...
+echo ==============================================================
+pause >nul
