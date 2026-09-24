@@ -1,0 +1,44 @@
+{
+  "name": "hyper-autofarmquest",
+  "version": "1.0.0",
+  "description": "Discord Quest Auto Farm & Auto Claim Bot with Terminal Dashboard",
+  "main": "bot.ts",
+  "scripts": {
+    "start": "tsx --env-file=.env bot.ts",
+    "dev": "tsx bot.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "discord",
+    "quest",
+    "autofarm",
+    "selfbot",
+    "discord-quest"
+  ],
+  "author": "sorajiz",
+  "license": "BSL-1.0",
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sorajiz/hyper-autofarmquest-.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/figlet": "^1.5.8",
+    "@types/node": "^20.10.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@discordjs/core": "^1.1.1",
+    "@discordjs/rest": "^2.2.0",
+    "@discordjs/ws": "^1.0.2",
+    "discord-api-types": "^0.37.61",
+    "undici": "^6.0.0",
+    "chalk": "^4.1.2",
+    "figlet": "^1.7.0",
+    "cli-table3": "^0.6.3"
+  }
+}
