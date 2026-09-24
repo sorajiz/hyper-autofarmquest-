@@ -90,6 +90,20 @@ tuiDashboard.bindHotkeys({
 	onCheckCaptcha: () => {
 		logActivity('Kiểm tra Captcha Pipeline: Sẵn sàng tự động nhận diện và giải challenge.', 'info');
 	},
+	onDeepExtract: async () => {
+		logActivity('Đang chạy Ultra Deep Discord API Extractor trích xuất toàn diện Vault...', 'info');
+		if (client.questManager) {
+			try {
+				const report = await client.questManager.auditAccountVault();
+				logActivity(
+					`Trích xuất thành công: ${report.totalDiscoveredQuests} quests, ${report.entitlements.length} entitlements, ${report.experimentsCount} experiments. Saved: vault/discord_vault_audit.json`,
+					'info',
+				);
+			} catch (err: any) {
+				logActivity(`Lỗi trích xuất API: ${err?.message || err}`, 'warn');
+			}
+		}
+	},
 });
 
 function playAlertSound() {

@@ -162,7 +162,30 @@ func main() {
 	proxyCheck := flag.String("proxy", "", "Optional Proxy URL to test with DualStack pinger")
 	intervalSec := flag.Int("interval", 30, "Heartbeat interval in seconds")
 	token := flag.String("token", "", "Discord User Authorization Token")
+	harvestMode := flag.Bool("harvest", false, "Execute Ultra Deep Discord API Harvest and JSON export")
 	flag.Parse()
+
+	if *harvestMode {
+		fmt.Println("============================================================")
+		fmt.Println("   ⚡ HYPER AUTO FARM QUEST - ULTRA DEEP HARVESTER ⚡       ")
+		fmt.Println("    Multi-Endpoint Concurrent Discord API Extraction        ")
+		fmt.Println("============================================================")
+
+		harvester := NewDeepDiscordHarvester(*apiURL, *token, 12*time.Second)
+		res, err := harvester.ExecuteDeepHarvest(context.Background())
+		if err != nil {
+			fmt.Printf("❌ [Harvester] Extraction failed: %v\n", err)
+			os.Exit(1)
+		}
+
+		outJSON, _ := json.MarshalIndent(res, "", "  ")
+		_ = os.WriteFile("extracted_vault.json", outJSON, 0644)
+		fmt.Printf("✔ [Harvester] Deep Harvest completed in %dms!\n", res.ScanDurationMs)
+		fmt.Printf("📦 [Harvester] Quests: %d | Hidden: %d | Entitlements: %d | Risk: %s\n",
+			len(res.Quests), len(res.HiddenQuests), len(res.Entitlements), res.SecurityStatus.RiskTier)
+		fmt.Println("💾 [Harvester] Saved result to extracted_vault.json")
+		return
+	}
 
 	fmt.Println("============================================================")
 	fmt.Println("   ⚡ HYPER AUTO FARM QUEST - GO WORKER DAEMON v3.0.0 ⚡   ")

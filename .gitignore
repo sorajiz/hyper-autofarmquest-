@@ -44,3 +44,11 @@ Thumbs.db
 
 # Superpowers temporary workspace
 .superpowers/
+
+# Temporary generated runtime folders
+games/
+temp_dummy_games/
+vault/
+*.vault.json
+extracted_vault.json
+test_vault_tmp/

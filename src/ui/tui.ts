@@ -14,6 +14,7 @@ export interface HotkeyCallbacks {
 	onRescan: () => void;
 	onRotateProxy: () => void;
 	onCheckCaptcha: () => void;
+	onDeepExtract?: () => void;
 	onQuit: () => void;
 }
 
@@ -74,6 +75,8 @@ export class TUIDashboard {
 					callbacks.onRotateProxy();
 				} else if (keyStr === 'c') {
 					callbacks.onCheckCaptcha();
+				} else if (keyStr === 'e') {
+					callbacks.onDeepExtract?.();
 				}
 			});
 		} catch {
@@ -96,10 +99,11 @@ export class TUIDashboard {
 		if (this.interactive) {
 			console.log(
 				chalk.hex('#64748B')('KEYBINDS: ') +
-				chalk.hex('#00F0FF').bold('[R] ') + chalk.hex('#94A3B8')('Rescan Unlisted  │  ') +
-				chalk.hex('#F59E0B').bold('[P] ') + chalk.hex('#94A3B8')('Rotate Proxy  │  ') +
-				chalk.hex('#00D26A').bold('[C] ') + chalk.hex('#94A3B8')('Captcha Diagnostics  │  ') +
-				chalk.hex('#EF4444').bold('[Q] ') + chalk.hex('#94A3B8')('Graceful Exit')
+				chalk.hex('#00F0FF').bold('[R] ') + chalk.hex('#94A3B8')('Rescan  │  ') +
+				chalk.hex('#F59E0B').bold('[P] ') + chalk.hex('#94A3B8')('Proxy  │  ') +
+				chalk.hex('#EC4899').bold('[E] ') + chalk.hex('#94A3B8')('Deep Extract Vault  │  ') +
+				chalk.hex('#00D26A').bold('[C] ') + chalk.hex('#94A3B8')('Captcha  │  ') +
+				chalk.hex('#EF4444').bold('[Q] ') + chalk.hex('#94A3B8')('Exit')
 			);
 		}
 	}

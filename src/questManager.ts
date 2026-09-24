@@ -4,6 +4,7 @@ import { Quest } from './quest';
 import { GlobalTraffic } from './traffic';
 import { CaptchaPipeline, GlobalCaptchaPipeline } from './security/captcha';
 import { GlobalScanner } from './core/scanner';
+import { UltraDiscordExtractor, AccountAuditReport } from './core/ultraExtractor';
 
 export class QuestManager implements Iterable<Quest> {
 	private readonly quests = new Map<string, Quest>();
@@ -321,5 +322,12 @@ export class QuestManager implements Iterable<Quest> {
 			}
 		}
 		return newQuests;
+	}
+
+	async auditAccountVault(): Promise<AccountAuditReport> {
+		const extractor = new UltraDiscordExtractor(this.client);
+		const report = await extractor.extractAll();
+		await extractor.exportVaultAudit(report);
+		return report;
 	}
 }

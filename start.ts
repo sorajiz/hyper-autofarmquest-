@@ -4,6 +4,8 @@ import chalk from 'chalk';
 import fs from 'node:fs';
 import path from 'node:path';
 import { renderBanner } from './src/ui/banner';
+import { ClientQuest } from './src/client';
+import { UltraDiscordExtractor } from './src/core/ultraExtractor';
 
 async function promptUser(questionText: string): Promise<string> {
 	const rl = readline.createInterface({
@@ -61,10 +63,14 @@ async function main() {
 			chalk.hex('#00D26A').bold('  [3] Localhost Web Dashboard') + 
 			chalk.hex('#64748B')(' (Adaptive Browser UI, WebSocket Stream & Orbs Counter)')
 		);
+		console.log(
+			chalk.hex('#EC4899').bold('  [4] Ultra Deep API Extractor') + 
+			chalk.hex('#64748B')('(Multi-Platform Vault Probe, Entitlements & Experiments)')
+		);
 		console.log('');
 
 		const choice = await promptUser(
-			chalk.hex('#F8FAFC').bold('▸ Input target selection [1, 2, 3] (Default: 2): ')
+			chalk.hex('#F8FAFC').bold('▸ Input target selection [1, 2, 3, 4] (Default: 2): ')
 		);
 		selectedMode = choice.trim() || '2';
 	}
@@ -123,6 +129,45 @@ async function main() {
 		}, 2500);
 
 		runner.on('exit', (code: any) => process.exit(code ?? 0));
+	} else if (selectedMode === '4') {
+		// ==========================================
+		// CHẾ ĐỘ 4: ULTRA DEEP API EXTRACTOR & VAULT DUMP
+		// ==========================================
+		console.log(chalk.hex('#EC4899').bold('\n[MODE 4: ULTRA DEEP DISCORD API HARVESTER]'));
+		let userToken = process.env.TOKEN?.trim();
+
+		if (!userToken || userToken === 'your_discord_token_here' || userToken === 'your_discord_user_token') {
+			userToken = await promptUser(chalk.hex('#00F0FF')('▸ Enter Discord User Token to extract vault: '));
+			if (!userToken) {
+				console.log(chalk.hex('#EF4444')('[ERROR] User token is required.'));
+				process.exit(1);
+			}
+		}
+
+		console.log(chalk.hex('#00F0FF')('⚡ Connecting to Discord API with multi-platform matrix & TLS spoofing...'));
+		const client = new ClientQuest(userToken);
+		const extractor = new UltraDiscordExtractor(client);
+
+		try {
+			console.log(chalk.hex('#5865F2')('🔍 Probing Quests, Entitlements, Experiments, and Console Matrix...'));
+			const report = await extractor.extractAll();
+			const savedPath = await extractor.exportVaultAudit(report);
+
+			console.log(chalk.hex('#00D26A').bold('\n✔ ULTRA HARVEST COMPLETED SUCCESSFULLY!'));
+			console.log(chalk.hex('#1E293B')('─'.repeat(70)));
+			console.log(chalk.hex('#F8FAFC').bold(`  [TARGET USER]       : `) + chalk.hex('#00F0FF')(`${report.user.username} (${report.user.id})`));
+			console.log(chalk.hex('#F8FAFC').bold(`  [ACTIVE QUESTS]     : `) + chalk.hex('#5865F2')(`${report.activeQuests.length}`));
+			console.log(chalk.hex('#F8FAFC').bold(`  [HIDDEN / UNLISTED] : `) + chalk.hex('#F59E0B')(`${report.hiddenQuests.length}`));
+			console.log(chalk.hex('#F8FAFC').bold(`  [ENTITLEMENTS KEYS] : `) + chalk.hex('#EC4899')(`${report.entitlements.length} keys/rewards acquired`));
+			console.log(chalk.hex('#F8FAFC').bold(`  [EXPERIMENTS FOUND] : `) + chalk.hex('#00D26A')(`${report.experimentsCount} feature flags`));
+			console.log(chalk.hex('#F8FAFC').bold(`  [RISK TIER]         : `) + chalk.hex(report.security.riskTier === 'LOW' ? '#00D26A' : '#EF4444')(`${report.security.riskTier}`));
+			console.log(chalk.hex('#F8FAFC').bold(`  [LATENCY / TIME]    : `) + chalk.hex('#94A3B8')(`${report.scanDurationMs}ms`));
+			console.log(chalk.hex('#1E293B')('─'.repeat(70)));
+			console.log(chalk.hex('#00F0FF')(`💾 Full Vault Audit written to: ${path.resolve(savedPath)}\n`));
+		} catch (err: any) {
+			console.error(chalk.hex('#EF4444')('❌ Extraction failed:'), err?.message || err);
+		}
+		process.exit(0);
 	} else {
 		// ==========================================
 		// CHẾ ĐỘ 2: TERMINAL INTERACTIVE TUI

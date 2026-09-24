@@ -1,4 +1,4 @@
-# ⚡ Hyper AutoFarm Quest Discord (v3.1.0 - Polyglot Ultra Matrix)
+# ⚡ Hyper AutoFarm Quest Discord (v3.3.0 - Polyglot Ultra Matrix)
 
 <p align="center">
   <b>Hệ thống tự động hóa hoàn thành nhiệm vụ Discord Quests & cày Orbs toàn diện, kiến trúc Polyglot Monorepo đa ngôn ngữ (Node.js/TypeScript, C# .NET 8, C++ Native, Rust, Go, Python FastAPI, Next.js, Vue 3) kết hợp Discord Components V2, ngụy trang TLS, xoay vòng proxy Dual-Stack, giải quyết thử thách Captcha và giao diện điều khiển đa kênh.</b><br>
@@ -13,19 +13,20 @@
 hyper-autofarmquest-/
 ├── bot.ts                   # Main CLI (Node.js & TS) - Banner "Auto Hyper - Farm Orb"
 ├── src/                     # Core TS engine (client, traffic, quest, questManager)
+│   ├── core/                # UltraDiscordExtractor & Platform Matrix Scanner
 │   ├── remote/              # Discord Remote Controller Bot (Discord Components V2)
 │   ├── ui/                  # Interactive Blessed TUI Dashboard
 │   └── native/              # 3-Tier Dynamic Native Addon Loader & Markterence Completer
 ├── code.js                  # One-click Discord DevTools Console Script
 ├── csharp-runner/           # C# .NET 8 Native WinAPI Game Sleeper & Windows Named Pipe IPC Client
 ├── native/                  # C++ Native Subsystem (Node-API Addon & Standalone Win32 Named Pipe Helper)
-├── rust-engine/             # Rust Native Dummy Game Sleeper & Discord IPC Named Pipe (\\.\pipe\discord-ipc-0)
-├── go-worker/               # Golang Ultra-Low RAM WorkerPool & DualStack IPv4/IPv6 Proxy Pinger (<5MB RAM)
+├── rust-engine/             # Rust Native Dummy Game Sleeper & Discord Extractor Vault Parser
+├── go-worker/               # Golang Ultra-Low RAM WorkerPool & Deep Discord API Harvester (<5MB RAM)
 ├── python-service/          # Python 3.12 + FastAPI REST API & Real-Time WebSocket Broadcaster (/ws/live)
 ├── web-dashboard/           # Next.js 14 Cyberpunk Neon Dark Mode Mission Control UI
 ├── vue-dashboard/           # Vue 3 / Vite Cyberpunk High-Speed Mission Control Dashboard
 ├── docker-compose.yml       # 1-Click Multi-Service Orchestration (6 Microservices)
-└── tests/                   # 17 Automated Test Suites (100% Pass)
+└── tests/                   # 19 Automated Test Suites (100% Pass)
 ```
 
 ---
@@ -59,6 +60,12 @@ hyper-autofarmquest-/
 7. 🐍 **Python FastAPI & Real-Time WebSocket (`python-service/`)**:
    - REST endpoints: `/api/status`, `/api/quests`, `/api/farm`, `/api/claim`, `/api/orbs`.
    - WebSocket `/ws/live` stream trực tiếp tiến độ cho cả 2 giao diện Next.js và Vue 3.
+
+8. ⚡ **Ultra Deep Discord API Extractor & Vault Harvester (`src/core/ultraExtractor.ts` & `go-worker/extractor.go`)**:
+   - **Đa chiều (Multi-Endpoint Scanning)**: Quét đồng thời `/users/@me`, `/quests/@me`, `/users/@me/entitlements`, `/experiments`, `/users/@me/connections`, `/discovery`.
+   - **Trích xuất sâu không giới hạn**: Phát hiện các nhiệm vụ ẩn bị khóa vùng/thiết bị, kho quà tặng/keys đã nhận (Nitro, Game Passes, Steam keys), và các tính năng beta thử nghiệm (A/B testing experiments).
+   - **Đánh giá rủi ro tài khoản (Security Risk Audit)**: Kiểm tra trạng thái khóa nhiệm vụ (`quest_enrollment_blocked_until`, `quest_access_suspended_until`) và xuất báo cáo an toàn.
+   - **Tự động lưu trữ (Vault Export)**: Xuất toàn bộ dữ liệu cấu trúc sạch vào `vault/discord_vault_audit.json`.
 
 ---
 

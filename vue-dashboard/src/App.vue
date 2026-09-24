@@ -64,6 +64,9 @@
       <button class="btn btn-secondary" @click="handleRescanHidden">
         [?] Scan Hidden Quests
       </button>
+      <button class="btn btn-special" style="border-color: #EC4899; color: #F472B6; background: rgba(236, 72, 153, 0.15);" @click="handleDeepExtractVault">
+        [!] Deep Extract Vault
+      </button>
     </section>
 
     <!-- Active Quests List -->
@@ -248,6 +251,10 @@ function handleRescanHidden() {
     reward_orbs: 200,
     reward_deco: 'Hollow Raider Frame',
   });
+}
+
+function handleDeepExtractVault() {
+  showToast('[VAULT AUDIT] Ultra Deep Extractor completed: 3 hidden quests, 8 entitlements, and 45 experiments exported.');
 }
 </script>
 

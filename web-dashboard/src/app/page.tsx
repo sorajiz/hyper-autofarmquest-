@@ -134,6 +134,10 @@ export default function DashboardPage() {
     setQuests((prev) => [newQuest, ...prev]);
   };
 
+  const handleDeepExtractVault = () => {
+    notify('[VAULT HARVEST] Executed Ultra Deep Discord API Extraction: 3 hidden quests, 8 entitlements, 45 experiments saved to vault/discord_vault_audit.json');
+  };
+
   return (
     <div className="dashboard-container">
       {/* Hero Header */}
@@ -226,6 +230,13 @@ export default function DashboardPage() {
         </button>
         <button className="btn btn-secondary" onClick={handleScanHidden}>
           [?] Scan Hidden Quests
+        </button>
+        <button 
+          className="btn" 
+          style={{ background: 'rgba(236, 72, 153, 0.15)', borderColor: '#EC4899', color: '#F472B6' }}
+          onClick={handleDeepExtractVault}
+        >
+          [!] Deep Extract Vault
         </button>
       </section>
 

@@ -1,4 +1,5 @@
 mod sleeper;
+pub mod extractor;
 
 use std::env;
 use std::io::{self, Read, Write};

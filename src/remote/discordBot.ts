@@ -53,6 +53,12 @@ export function buildComponentsV2Payload(data: StatusData = {}) {
 						custom_id: 'btn_proxy',
 						label: '[~] Rotate Proxy',
 					},
+					{
+						type: 2, // Button
+						style: 4, // Danger / Attention (Red/Pink)
+						custom_id: 'btn_vault',
+						label: '[!] Deep Vault',
+					},
 				],
 			},
 		],
@@ -134,6 +140,17 @@ export class DiscordRemoteBot {
 						await api.interactions.reply(data.id, data.token, {
 							content: next ? `🔄 Đã xoay proxy sang: \`${next.url}\`` : '⚠ Chưa cấu hình danh sách proxy.',
 						});
+					} else if (cmdName === 'vault') {
+						if (questManager) {
+							const report = await questManager.auditAccountVault();
+							await api.interactions.reply(data.id, data.token, {
+								content: `📦 **VAULT AUDIT REPORT:** Đã phát hiện ${report.totalDiscoveredQuests} quests, ${report.entitlements.length} kho quà/keys, ${report.experimentsCount} experiments! Đã lưu: \`vault/discord_vault_audit.json\``,
+							});
+						} else {
+							await api.interactions.reply(data.id, data.token, {
+								content: '⚠ QuestManager chưa sẵn sàng.',
+							});
+						}
 					}
 				}
 
@@ -172,6 +189,16 @@ export class DiscordRemoteBot {
 						const next = GlobalProxyPool.rotate();
 						await api.interactions.reply(data.id, data.token, {
 							content: next ? `🔄 **Đã xoay proxy:** \`${next.url}\`` : '⚠ Không có proxy dự phòng trong Pool.',
+							flags: 64,
+						});
+					} else if (customId === 'btn_vault') {
+						if (questManager) {
+							questManager.auditAccountVault().then((report) => {
+								// Background audit saved to vault/
+							});
+						}
+						await api.interactions.reply(data.id, data.token, {
+							content: `📦 **Kích hoạt Ultra Deep Extractor!** Đang quét đa chiều và trích xuất dữ liệu vào \`vault/discord_vault_audit.json\``,
 							flags: 64,
 						});
 					}
