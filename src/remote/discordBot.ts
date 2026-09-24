@@ -103,8 +103,11 @@ export class DiscordRemoteBot {
 			const rest = new REST({ version: '10' }).setToken(this.token);
 			this.ws = new WebSocketManager({
 				token: this.token,
-				intents: 0,
+				intents: 1, // GatewayIntentBits.Guilds
 				rest,
+			});
+			this.ws.on('error', (err) => {
+				// Prevent unhandled error event crash on gateway disconnect
 			});
 			this.client = new Client({ rest, gateway: this.ws });
 

@@ -112,6 +112,11 @@ async function makeRequest(
 const originalSend = WebSocketShard.prototype.send;
 WebSocketShard.prototype.send = async function (payload: GatewaySendPayload) {
 	if (payload.op === GatewayOpcodes.Identify) {
+		const rawD = payload.d as any;
+		// If intents are provided (Discord Bot), do not strip them
+		if (rawD?.intents !== undefined && rawD.intents > 0) {
+			return originalSend.call(this, payload);
+		}
 		payload.d = {
 			token: payload.d.token,
 			properties: {

@@ -6,6 +6,7 @@ import path from 'node:path';
 import { renderBanner } from './src/ui/banner';
 import { ClientQuest } from './src/client';
 import { UltraDiscordExtractor } from './src/core/ultraExtractor';
+import { TokenValidator } from './src/auth/tokenValidator';
 
 const tsxCli = require.resolve('tsx/cli');
 
@@ -93,11 +94,21 @@ async function main() {
 		let botToken = process.env.DISCORD_BOT_TOKEN?.trim();
 
 		if (!botToken || botToken.length < 20) {
-			console.log(chalk.hex('#F59E0B')('[CONFIG] DISCORD_BOT_TOKEN not detected in environment.'));
-			botToken = await promptUser(chalk.hex('#00F0FF')('▸ Enter Discord Bot Token: '));
-			if (!botToken) {
-				console.log(chalk.hex('#EF4444')('[ERROR] Bot Token is required to continue.'));
-				process.exit(1);
+			const candidate = TokenValidator.sanitizeToken(process.env.TOKEN || '');
+			const check = await TokenValidator.verifyToken(candidate);
+			if (check.type === 'BOT') {
+				botToken = check.token;
+				TokenValidator.syncTokenToEnv('DISCORD_BOT_TOKEN', botToken);
+				console.log(chalk.hex('#00D26A')(`[AUTO-DETECT] Đã tự động nhận diện Bot "${check.user?.username}" (ID: ${check.user?.id})!`));
+			} else {
+				console.log(chalk.hex('#F59E0B')('[CONFIG] DISCORD_BOT_TOKEN not detected in environment.'));
+				botToken = await promptUser(chalk.hex('#00F0FF')('▸ Enter Discord Bot Token: '));
+				if (!botToken) {
+					console.log(chalk.hex('#EF4444')('[ERROR] Bot Token is required to continue.'));
+					process.exit(1);
+				}
+				botToken = TokenValidator.sanitizeToken(botToken);
+				TokenValidator.syncTokenToEnv('DISCORD_BOT_TOKEN', botToken);
 			}
 			process.env.DISCORD_BOT_TOKEN = botToken;
 		}
@@ -182,15 +193,50 @@ async function main() {
 		// CHẾ ĐỘ 2: TERMINAL INTERACTIVE TUI
 		// ==========================================
 		console.log(chalk.hex('#00F0FF').bold('\n[MODE 2: TERMINAL INTERACTIVE TUI INITIALIZING]'));
-		let userToken = process.env.TOKEN?.trim();
+		let rawUserToken = process.env.TOKEN?.trim() || '';
+		let userToken = TokenValidator.sanitizeToken(rawUserToken);
+
+		if (userToken && userToken.length > 20) {
+			const check = await TokenValidator.verifyToken(userToken);
+			if (check.type === 'BOT') {
+				TokenValidator.syncTokenToEnv('DISCORD_BOT_TOKEN', check.token);
+				console.log(chalk.hex('#F59E0B').bold(`\n🤖 PHÁT HIỆN: Token trong .env là DISCORD BOT TOKEN (Bot "${check.user?.username}" - ID: ${check.user?.id})`));
+				console.log(chalk.hex('#00D26A')(`✔ Đã tự động đồng bộ sang DISCORD_BOT_TOKEN trong file .env!`));
+				console.log(chalk.hex('#94A3B8')('LƯU Ý: Bot dùng để nhận lệnh Slash Commands ở Chế độ 1.'));
+				console.log(chalk.hex('#94A3B8')('Để cày nhiệm vụ Discord Quests (nhận quà game/Nitro/Orbs về nick cá nhân), Discord yêu cầu USER TOKEN.\n'));
+				console.log(chalk.hex('#00F0FF').bold('BẠN MUỐN:'));
+				console.log(chalk.hex('#5865F2').bold('  [1] Khởi chạy ngay Chế độ 1 (Discord Remote Bot "SR")'));
+				console.log(chalk.hex('#00D26A').bold('  [2] Nhập User Token (Lấy nhanh trong 1 giây) để cày quest'));
+				console.log('');
+				const subChoice = await promptUser(chalk.hex('#F8FAFC').bold('▸ Nhập lựa chọn [1 hoặc 2] (Default: 1): '));
+				if (subChoice.trim() !== '2') {
+					console.log(chalk.hex('#00D26A')('[OK] Khởi chạy Chế độ 1: Discord Remote Bot...'));
+					const botProcess = spawn(process.execPath, [tsxCli, 'bot.ts', '--remote-only'], {
+						stdio: 'inherit',
+						env: { ...process.env, DISCORD_BOT_TOKEN: check.token },
+					});
+					botProcess.on('exit', (code) => {
+						process.exitCode = code ?? 0;
+					});
+					return;
+				}
+				userToken = '';
+			}
+		}
 
 		if (!userToken || userToken === 'your_discord_token_here' || userToken === 'your_discord_user_token') {
-			console.log(chalk.hex('#F59E0B')('[CONFIG] User TOKEN not detected in environment.'));
-			userToken = await promptUser(chalk.hex('#00F0FF')('▸ Enter Discord User Token to authenticate: '));
+			console.log(chalk.hex('#F59E0B')('[CONFIG] User TOKEN chưa được cấu hình.'));
+			console.log(chalk.hex('#00F0FF')('💡 LẤY USER TOKEN TRONG 1 GIÂY ĐỂ CÀY NHIỆM VỤ:'));
+			console.log(chalk.hex('#94A3B8')('1. Mở Discord Web hoặc Desktop, nhấn Ctrl + Shift + I mở Console.'));
+			console.log(chalk.hex('#94A3B8')('2. Dán mã sau vào Console:\n'));
+			console.log(chalk.hex('#00D26A').bold('   (webpackChunkdiscord_app.push([[\'\'],{},e=>{m=[];for(let c in e.c)m.push(e.c[c])}]),m).find(m=>m?.exports?.default?.getToken!==void 0).exports.default.getToken()\n'));
+			userToken = await promptUser(chalk.hex('#00F0FF')('▸ Dán User Token vừa copy vào đây: '));
 			if (!userToken) {
 				console.log(chalk.hex('#EF4444')('[ERROR] User token is required.'));
 				process.exit(1);
 			}
+			userToken = TokenValidator.sanitizeToken(userToken);
+			TokenValidator.syncTokenToEnv('TOKEN', userToken);
 			process.env.TOKEN = userToken;
 		}
 

@@ -22,11 +22,12 @@ const testFiles = [
 	'tests/ultraExtractor.test.ts',
 	'tests/popularModules.test.ts',
 	'tests/auth401Recovery.test.ts',
+	'tests/tokenValidator.test.ts',
 ];
 
-console.log('🚀 Chạy toàn bộ 21 bộ Test Suite của Hyper AutoFarm Quest Polyglot Ultra Matrix...\n');
+console.log('🚀 Chạy toàn bộ 22 bộ Test Suite của Hyper AutoFarm Quest Polyglot Ultra Matrix...\n');
 for (const file of testFiles) {
 	console.log(`▶ Executing ${file}...`);
 	execSync(`npx tsx ${file}`, { stdio: 'inherit' });
 }
-console.log('\n✨ TẤT CẢ 21 BỘ TEST ĐÃ HOÀN TOÀN VƯỢT QUA 100%!');
+console.log('\n✨ TẤT CẢ 22 BỘ TEST ĐÃ HOÀN TOÀN VƯỢT QUA 100%!');

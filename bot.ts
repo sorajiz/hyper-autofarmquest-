@@ -8,13 +8,15 @@ import { renderBanner } from './src/ui/banner';
 import { TUIDashboard } from './src/ui/tui';
 import { DynamicNativeLoader } from './src/native/nativeLoader';
 import { GlobalProxyPool } from './src/network/proxyPool';
-import { GlobalRemoteBot } from './src/remote/discordBot';
+import { GlobalRemoteBot, DiscordRemoteBot } from './src/remote/discordBot';
 import { MarkterenceCompleter } from './src/native/markterenceCompleter';
+import { TokenValidator } from './src/auth/tokenValidator';
 
+const isRemoteOnly = process.argv.includes('--remote-only');
 const rawToken = process.env.TOKEN || '';
-const token = rawToken.trim().replace(/^["']|["']$/g, '');
+const token = TokenValidator.sanitizeToken(rawToken);
 
-if (!token) {
+if (!isRemoteOnly && !token) {
 	console.error(chalk.red('\n❌ LỖI: Chưa cấu hình Discord TOKEN trong file .env!'));
 	console.log(chalk.yellow('Vui lòng mở file .env và nhập: TOKEN=token_cua_ban'));
 	process.exit(1);
@@ -294,6 +296,27 @@ function rnd(min: number, max: number): number {
 
 async function startBot() {
 	try {
+		console.log(chalk.cyan('Đang kiểm tra và xác thực token...'));
+		const tokenCheck = await TokenValidator.verifyToken(token);
+		if (tokenCheck.type === 'BOT') {
+			TokenValidator.syncTokenToEnv('DISCORD_BOT_TOKEN', tokenCheck.token);
+			console.log(chalk.yellow.bold(`\n🤖 PHÁT HIỆN: Token trong file .env là DISCORD BOT TOKEN (Bot "${tokenCheck.user?.username}" - ID: ${tokenCheck.user?.id})!`));
+			console.log(chalk.green(`✔ Token này hoàn toàn hợp lệ cho [Chế độ 1: Discord Remote Bot].`));
+			console.log(chalk.cyan(`👉 Hệ thống đã tự động lưu vào DISCORD_BOT_TOKEN trong file .env.`));
+			console.log(chalk.cyan(`👉 Để chạy Bot "${tokenCheck.user?.username}", bạn chỉ cần gõ lệnh: `) + chalk.bold.white('npm start -- --bot\n'));
+			console.log(chalk.yellow('⚠️ LƯU Ý VỀ CÀY NHIỆM VỤ (DISCORD QUESTS):'));
+			console.log(chalk.white('Nhiệm vụ Discord Quests (cày game/video để nhận phần thưởng game/Nitro/Orbs)'));
+			console.log(chalk.white('CHỈ DÀNH CHO TÀI KHOẢN NGƯỜI DÙNG (User Token). Discord cấm Bot cày quest (HTTP 403: "Bots cannot use this endpoint").'));
+			console.log(chalk.white('\n💡 CÁCH LẤY USER TOKEN TRONG 1 GIÂY ĐỂ CÀY NHIỆM VỤ:'));
+			console.log(chalk.cyan('1. Mở Discord Desktop hoặc Web Discord trên trình duyệt, nhấn Ctrl + Shift + I để mở Console.'));
+			console.log(chalk.cyan('2. Dán đoạn mã sau vào Console và nhấn Enter:\n'));
+			console.log(chalk.green.bold('   (webpackChunkdiscord_app.push([[\'\'],{},e=>{m=[];for(let c in e.c)m.push(e.c[c])}]),m).find(m=>m?.exports?.default?.getToken!==void 0).exports.default.getToken()\n'));
+			console.log(chalk.cyan('3. Copy chuỗi User Token và dán vào file .env:'));
+			console.log(chalk.white('   TOKEN=chuoi_user_token_vua_copy\n'));
+			process.exitCode = 0;
+			return;
+		}
+
 		console.log(chalk.cyan('Đang đăng nhập vào Discord...'));
 		const user = await client.fetchCurrentUser();
 		currentUser = user;
@@ -540,4 +563,34 @@ async function startBot() {
 	}
 }
 
-startBot();
+if (isRemoteOnly) {
+	const rawBotToken = process.env.DISCORD_BOT_TOKEN || process.env.TOKEN || '';
+	const botToken = TokenValidator.sanitizeToken(rawBotToken);
+	if (!botToken || botToken.length < 20) {
+		console.error(chalk.red('\n❌ LỖI: Chưa cấu hình DISCORD_BOT_TOKEN trong file .env!'));
+		process.exit(1);
+	}
+	console.log(chalk.hex('#5865F2').bold('\n[CHẾ ĐỘ 1: DISCORD REMOTE BOT KHỞI CHẠY]'));
+	console.log(chalk.cyan('Đang kết nối Discord Gateway cho Remote Bot...'));
+	const remoteBot = new DiscordRemoteBot(botToken);
+	remoteBot.start().then(() => {
+		console.log(chalk.green.bold('✔ Discord Remote Bot đã kết nối thành công và đang hoạt động 24/7!'));
+		console.log(chalk.cyan('Sử dụng các Slash Command trên server Discord: /status, /farm, /claim, /proxy, /vault'));
+		console.log(chalk.gray('>> Nhấn Ctrl+C để dừng bot an toàn.\n'));
+	}).catch((err) => {
+		console.error(chalk.red('❌ Lỗi kết nối Remote Bot:'), err?.message || err);
+		process.exit(1);
+	});
+
+	process.on('SIGINT', () => {
+		console.log(chalk.yellow('\nĐang ngắt kết nối Remote Bot...'));
+		remoteBot.stop();
+		process.exit(0);
+	});
+	process.on('SIGTERM', () => {
+		remoteBot.stop();
+		process.exit(0);
+	});
+} else {
+	startBot();
+}
