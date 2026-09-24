@@ -4,6 +4,10 @@ import figlet from 'figlet';
 import { ClientQuest, globalDispatcher } from './src/client';
 import { Quest } from './src/quest';
 import { GlobalTraffic } from './src/traffic';
+import { renderBanner } from './src/ui/banner';
+import { TUIDashboard } from './src/ui/tui';
+import { DynamicNativeLoader } from './src/native/nativeLoader';
+import { GlobalProxyPool } from './src/network/proxyPool';
 
 const rawToken = process.env.TOKEN || '';
 const token = rawToken.trim().replace(/^["']|["']$/g, '');
@@ -38,6 +42,51 @@ let activityLogs: string[] = [];
 let isShuttingDown = false;
 let updateTimer: NodeJS.Timeout | null = null;
 let currentUser: { username: string; id: string } | null = null;
+
+const isHeadless = process.argv.includes('--headless');
+export const tuiDashboard = new TUIDashboard({ isHeadless });
+
+export async function gracefulShutdown(reason: string = 'Người dùng yêu cầu') {
+	if (isShuttingDown) return;
+	isShuttingDown = true;
+	tuiDashboard.cleanup();
+	if (updateTimer) clearInterval(updateTimer);
+	GlobalTraffic.shutdown();
+
+	console.log(chalk.yellow(`\n\n🛑 Đang dừng bot an toàn (${reason})...`));
+	const manager = client.questManager;
+	if (manager) {
+		const running = activeStates.filter((s) => s.status === 'RUNNING');
+		for (const state of running) {
+			try {
+				await manager.sendHeartbeat(state.quest, true);
+			} catch {}
+		}
+	}
+	console.log(chalk.green('✔ Đã lưu tiến độ an toàn. Tạm biệt!\n'));
+	process.exit(0);
+}
+
+process.on('SIGINT', () => gracefulShutdown('Ctrl+C'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+tuiDashboard.bindHotkeys({
+	onQuit: () => gracefulShutdown('Phím q bấm bởi người dùng'),
+	onRescan: async () => {
+		logActivity('Đang quét nhiệm vụ ẩn (Hidden Quests Scanner)...', 'info');
+		if (client.questManager) {
+			const found = await client.questManager.scanHiddenQuests();
+			logActivity(`Đã quét xong: tìm thấy ${found.length} nhiệm vụ mới.`, 'info');
+		}
+	},
+	onRotateProxy: () => {
+		const next = GlobalProxyPool.rotate();
+		logActivity(next ? `Đã xoay proxy sang: ${next.url}` : 'Chưa cấu hình danh sách proxy để xoay', 'info');
+	},
+	onCheckCaptcha: () => {
+		logActivity('Kiểm tra Captcha Pipeline: Sẵn sàng tự động nhận diện và giải challenge.', 'info');
+	},
+});
 
 function playAlertSound() {
 	if (config.playSound) {
@@ -95,16 +144,7 @@ function renderDashboard(user: { username: string; id: string }, force: boolean 
 
 	process.stdout.write('\x1Bc');
 
-	console.log(
-		chalk.cyan(
-			figlet.textSync('Discord Quest Bot', {
-				font: 'Slant',
-				horizontalLayout: 'fitted',
-			}),
-		),
-	);
-
-	console.log(chalk.bold.green('🚀 AUTO QUEST ENGINE - CHỐNG RATE-LIMIT & AN TOÀN TUYỆT ĐỐI'));
+	console.log(renderBanner());
 
 	const manager = client.questManager;
 	const restrictions = manager?.getAccountRestrictions();
@@ -119,14 +159,15 @@ function renderDashboard(user: { username: string; id: string }, force: boolean 
 		style: { border: ['cyan'] },
 	});
 
-	const proxyBadge = config.proxyConfigured
-		? chalk.green.bold('🛡️ Proxy: Đang bật (Đổi IP)')
-		: chalk.blue('🛡️ Anti-Spam Jitter (Trực tiếp)');
+	const proxyStats = GlobalProxyPool.getStats();
+	const proxyBadge = proxyStats.total > 0
+		? chalk.green.bold(`🛡️ Proxy Pool: ${proxyStats.healthy}/${proxyStats.total} (IPv6: ${proxyStats.ipv6Count})`)
+		: (config.proxyConfigured ? chalk.green.bold('🛡️ Proxy: Đang bật') : chalk.blue('🛡️ Trực tiếp'));
 
 	const runningCount = activeStates.filter((s) => s.status === 'RUNNING').length;
 	userCard.push([
 		chalk.yellow.bold(user.username) + chalk.gray(` (${user.id.slice(-4)})`),
-		`${proxyBadge}\n${chalk.gray(`Gửi: ${GlobalTraffic.stats.requestsSent} | 429: ${GlobalTraffic.stats.rateLimitsEncountered}`)}`,
+		`${proxyBadge}\n${chalk.gray(`Native: ${DynamicNativeLoader.getStatusInfo()}`)}\n${chalk.gray(`Gửi: ${GlobalTraffic.stats.requestsSent} | 429: ${GlobalTraffic.stats.rateLimitsEncountered}`)}`,
 		chalk.green.bold(`${runningCount} active / ${activeStates.length} tổng`),
 	]);
 	console.log(userCard.toString());
@@ -215,31 +256,12 @@ function renderDashboard(user: { username: string; id: string }, force: boolean 
 		activityLogs.forEach((log) => console.log(`  ${log}`));
 	}
 
-	console.log(chalk.gray('\n>> Nhấn Ctrl+C để dừng bot an toàn (sẽ tự động lưu tiến độ hiện tại).'));
-}
-
-async function shutdown() {
-	if (isShuttingDown) return;
-	isShuttingDown = true;
-	if (updateTimer) clearInterval(updateTimer);
-	GlobalTraffic.shutdown();
-
-	console.log(chalk.yellow('\n\n⏳ Đang lưu tiến độ trước khi thoát...'));
-	const manager = client.questManager;
-	if (manager) {
-		const running = activeStates.filter((s) => s.status === 'RUNNING');
-		for (const state of running) {
-			try {
-				await manager.sendHeartbeat(state.quest, true);
-			} catch {}
-		}
+	if (tuiDashboard.isInteractive()) {
+		console.log(chalk.gray('\n⌨ Phím tắt: [r] Quét ẩn | [p] Đổi Proxy | [c] Captcha | [q] Thoát'));
+	} else {
+		console.log(chalk.gray('\n>> Nhấn Ctrl+C để dừng bot an toàn (sẽ tự động lưu tiến độ hiện tại).'));
 	}
-	console.log(chalk.green('✔ Đã lưu tiến độ an toàn. Tạm biệt!\n'));
-	process.exit(0);
 }
-
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
 
 function sleep(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
