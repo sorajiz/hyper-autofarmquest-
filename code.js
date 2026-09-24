@@ -1,4 +1,9 @@
-// https://gist.github.com/aamiaa/204cd9d42013ded9faf646fae7f89fbb/4912415839790240d49c1d2553e940f0c65f95d5
+/**
+ * ⭐ Auto Hyper - Farm Orb | 1-Click Discord Console Script v2.0.0
+ * Run directly in Discord Desktop App Console (Ctrl + Shift + I -> Console)
+ */
+
+console.log('%c⭐ Auto Hyper - Farm Orb | DevTools Console Edition ⭐', 'color: #5865F2; font-size: 16px; font-weight: bold;');
 
 delete window.$;
 let wpRequire = webpackChunkdiscord_app.push([[Symbol()], {}, (r) => r]);

@@ -1,40 +1,46 @@
-# ⚡ Hyper AutoFarm Quest Discord
+# ⚡ Hyper AutoFarm Quest Discord (v2.0.0)
 
 <p align="center">
-  <b>Tự động hóa hoàn thành nhiệm vụ Discord Quests với giao diện Terminal hiện đại, chống Rate Limit và nhận thưởng tự động.</b><br>
-  <i>Automated Discord Quest completion bot with real-time CLI dashboard, rate-limit protection, and auto reward claim.</i>
+  <b>Hệ thống tự động hóa hoàn thành nhiệm vụ Discord Quests cao cấp, tích hợp ngụy trang TLS, xoay vòng proxy Dual-Stack, giải quyết thử thách Captcha và giao diện điều khiển đa kênh.</b><br>
+  <i>Advanced Discord Quest automation engine featuring 3-Tier Native architecture, Dual-Stack IPv4/IPv6 proxy pool, Captcha challenges pipeline, Hidden Quests scanner, and Multi-Interface control.</i>
 </p>
 
 ---
 
 ## ✨ Tính Năng Nổi Bật (Features)
 
-- 🖥️ **Giao diện Terminal trực quan**: Hiển thị bảng trạng thái, thanh tiến độ (Progress Bar), đồng hồ đếm ngược và nhật ký hoạt động theo thời gian thực (Real-time CLI).
-- 🎁 **Tự động nhận thưởng (Auto Claim)**: Tự động ghi danh (Auto Enroll) nhiệm vụ mới và tự động nhận phần thưởng (Avatar Decoration, Discord Orbs, Nitro quà tặng...).
-- 🛡️ **Bảo vệ chống Rate Limit & Anti-Ban**:
-  - Tích hợp `TrafficEngine` tự động điều tiết nhịp gửi request (1.0s - 1.6s).
-  - Tự động bắt lỗi HTTP 429 và thử lại thông minh với thuật toán Exponential Backoff + Jitter.
-  - Nhịp Heartbeat so le (Staggered Heartbeats) tránh hiện tượng gửi dữ liệu ồ ạt.
-- 📺 **Hỗ trợ đa dạng loại nhiệm vụ**:
-  - `WATCH_VIDEO` / `WATCH_VIDEO_ON_MOBILE`: Tăng tốc tiến độ video an toàn, mượt mà.
-  - `PLAY_ON_DESKTOP` / `STREAM_ON_DESKTOP` / `PLAY_ACTIVITY`: Giả lập client Discord chuẩn xác với đầy đủ super-properties.
-- 🌐 **Hỗ trợ Proxy**: Tương thích hoàn toàn với HTTP, HTTPS và SOCKS5 proxy để đổi IP và bảo vệ tài khoản.
-- 📜 **Kèm script DevTools Console**: Cung cấp sẵn file `code.js` để chạy trực tiếp trên Console trình duyệt hoặc Discord Desktop Client.
+- 🏛️ **Kiến trúc 3-Tier Native Engine**:
+  - **Tier 1 (C++ Addon - `native/addon/`)**: Giả lập dấu vân tay TLS (JA4, HTTP/2 settings) chuẩn Discord Client và raw TCP SOCKS5 tunnel.
+  - **Tier 2 (Standalone Helper Binary - `native/helper/`)**: File thực thi độc lập kết nối Discord IPC Named Pipe và chạy Dummy Game Sleeper.
+  - **Tier 3 (Pure TypeScript Fallback)**: Tự động kích hoạt khi môi trường thiếu build tools C++, đảm bảo 100% người dùng chạy lệnh `npm start` là hoạt động ngay không bao giờ crash.
+- 🌐 **Dual-Stack Proxy Pool (IPv4 / IPv6) & Failover**:
+  - Hỗ trợ danh sách nhiều proxy đa giao thức: HTTP, HTTPS, SOCKS5 (nguyên bản với `socks-proxy-agent`).
+  - Phân loại IPv4 / IPv6 tự động, cơ chế phát hiện proxy chết và tự động failover sang proxy dự phòng (`markBad()`).
+- 🧩 **Captcha Challenge Pipeline**:
+  - Tự động nhận diện thử thách Discord HTTP 400 (`captcha_sitekey`, `captcha_service`).
+  - Tích hợp API Solvers: **CapSolver**, **2Captcha**, cùng cơ chế CLI manual fallback.
+- 🔍 **Hidden Quests Discovery Scanner**:
+  - Giả lập ma trận nền tảng (Platform Matrix Spoofing): Desktop Windows 11, macOS Apple Silicon, Mobile Android v250+, Console Xbox Series X.
+  - Xoay vòng vùng địa lý (`X-Discord-Locale` và `Accept-Language`) để mở khóa nhiệm vụ ẩn theo khu vực.
+- 🖥️ **Terminal Interactive TUI Dashboard**:
+  - Khởi động với Banner nghệ thuật ASCII chữ lớn `Auto Hyper - Farm Orb`.
+  - Hiển thị bảng trạng thái real-time, tiến độ từng game, bộ đếm heartbeat.
+  - Phím tắt bàn phím (Interactive Hotkeys):
+    - `r`: Quét lại nhiệm vụ ẩn (Rescan).
+    - `p`: Đổi ngay sang Proxy tiếp theo trong Pool (Rotate Proxy).
+    - `c`: Kiểm tra trạng thái Captcha solver.
+    - `q` / `Ctrl+C`: Thoát ứng dụng và lưu tiến độ an toàn.
+  - Hỗ trợ chế độ chạy ngầm `--headless` an toàn tuyệt đối cho VPS/Docker/Background daemon (tự động nhận diện TTY).
+- 🤖 **Discord Remote Controller Bot**:
+  - Tùy chọn kích hoạt qua `DISCORD_BOT_TOKEN`, nhận lệnh Slash Commands (`/status`) từ máy chủ Discord riêng tư.
+- 📜 **Script DevTools Console ([`code.js`](code.js))**:
+  - Cung cấp mã JavaScript 1-click chạy trực tiếp trong Console Discord Desktop Client.
 
 ---
 
-## 📦 Yêu Cầu Hệ Thống (Prerequisites)
+## 📦 Cài Đặt & Sử Dụng (Quick Start)
 
-- [Node.js](https://nodejs.org/) phiên bản **18.0.0** trở lên (Khuyến nghị Node.js 20 hoặc 24).
-- [Git](https://git-scm.com/)
-
----
-
-## 🚀 Hướng Dẫn Cài Đặt & Sử Dụng (Quick Start)
-
-### 1. Cài đặt các gói phụ thuộc (Dependencies)
-
-Mở terminal tại thư mục dự án và chạy:
+### 1. Cài đặt các gói phụ thuộc
 
 ```bash
 npm install
@@ -45,86 +51,57 @@ npm install
 Sao chép file `.env.example` thành `.env`:
 
 ```bash
-# Trên Windows PowerShell:
+# Windows PowerShell:
 Copy-Item .env.example .env
 
-# Hoặc trên Linux/macOS/Git Bash:
+# Linux / macOS / Git Bash:
 cp .env.example .env
 ```
 
-Mở file `.env` và điền token Discord của bạn:
+Mở file `.env` và điền thông tin:
 
 ```env
-# Token tài khoản Discord (Bắt buộc)
-TOKEN=your_discord_token_here
+# Token tài khoản Discord cày Quest (Bắt buộc)
+TOKEN=your_discord_user_token
 
-# Proxy IP bảo vệ (Tùy chọn - nếu muốn đổi IP để tránh limit IP):
-# Hỗ trợ HTTP, HTTPS, SOCKS5 (Ví dụ: http://user:pass@ip:port)
-PROXY=
+# Danh sách Proxy (Tùy chọn, phân tách bằng dấu phẩy):
+# Hỗ trợ HTTP, HTTPS, SOCKS5 (IPv4 và IPv6)
+PROXIES=http://user:pass@1.2.3.4:8080,socks5://5.6.7.8:1080
 
-# Tự động ghi danh nhiệm vụ mới (Mặc định: true)
+# API Key giải Captcha tự động (Tùy chọn)
+CAPSOLVER_API_KEY=
+TWOCAPTCHA_API_KEY=
+
+# Official Discord Bot Token để điều khiển từ xa (Tùy chọn)
+DISCORD_BOT_TOKEN=
+
+# Tùy chọn cày nhiệm vụ
 AUTO_ENROLL=true
-
-# Tự động nhận thưởng khi xong nhiệm vụ (Mặc định: true)
 AUTO_CLAIM=true
-
-# Chu kỳ Heartbeat tính bằng giây (Mặc định: 30)
-HEARTBEAT_INTERVAL=30
-
-# Phát âm báo khi hoàn thành nhiệm vụ (Mặc định: true)
-PLAY_SOUND=true
 ```
-
-> ⚠️ **LƯU Ý BẢO MẬT**: File `.env` chứa token cá nhân của bạn đã được cấu hình trong `.gitignore` để **không bao giờ bị đẩy lên GitHub**. Không bao giờ chia sẻ token cho người khác.
 
 ### 3. Khởi chạy Bot
 
 ```bash
+# Chạy giao diện TUI Interactive thông thường:
 npm start
+
+# Hoặc chạy ở chế độ Headless (tối ưu cho VPS / Server):
+npm start -- --headless
+```
+
+### 4. Kiểm tra mã nguồn
+
+```bash
+# Kiểm tra TypeScript typecheck:
+npm run typecheck
+
+# Chạy toàn bộ Test Suite:
+npm test
 ```
 
 ---
 
-## 💡 Phương Pháp Sử Dụng Thay Thế (Discord DevTools Console)
+## 📄 Bản Quyền & Giấy Phép
 
-Nếu không muốn chạy bot qua Node.js, bạn có thể hoàn thành nhiệm vụ trực tiếp trên ứng dụng Discord:
-
-1. Mở Discord trên trình duyệt (hoặc mở Discord Desktop bật Developer Tools qua `Ctrl + Shift + I`).
-2. Mở tab **Console**.
-3. Mở file [`code.js`](code.js), sao chép toàn bộ nội dung và dán vào tab Console rồi nhấn **Enter**.
-4. Script sẽ tự động nhận diện nhiệm vụ đang hoạt động và gửi tiến độ hoàn thành.
-
----
-
-## ⚙️ Cấu Trúc Dự Án (Project Structure)
-
-```
-hyper-autofarmquest-/
-├── src/
-│   ├── client.ts          # Discord REST & WebSocket client với header giả lập client
-│   ├── constants.ts       # Super-properties & User Agent Discord client
-│   ├── interface.ts       # TypeScript interfaces và types cho Discord Quests API
-│   ├── quest.ts           # Lớp Quest xử lý tiến độ, cấu hình và trạng thái nhiệm vụ
-│   ├── questManager.ts    # Quản lý danh sách nhiệm vụ, gửi heartbeat, claim thưởng
-│   └── traffic.ts         # TrafficEngine điều tiết tốc độ, retry & backoff chống 429
-├── bot.ts                 # Điểm khởi chạy chính và Terminal UI Dashboard
-├── code.js                # Script chạy qua DevTools Console
-├── quest.json             # Dữ liệu mẫu cấu trúc Quest Discord
-├── .env.example           # File mẫu biến môi trường
-├── .gitignore             # Danh sách loại trừ Git (bảo vệ .env & node_modules)
-├── package.json           # Cấu hình dự án & thư viện phụ thuộc
-├── tsconfig.json          # Cấu hình TypeScript compiler
-└── LICENSE                # Boost Software License 1.0
-```
-
----
-
-## ⚠️ Tuyên Bố Từ Chối Trách Nhiệm (Disclaimer)
-
-> Việc sử dụng Selfbot vi phạm Điều khoản Dịch vụ (Terms of Service) của Discord. Công cụ này được phát triển cho mục đích giáo dục và nghiên cứu. Bạn tự chịu trách nhiệm đối với bất kỳ rủi ro nào liên quan đến tài khoản của mình.
-
----
-
-## 📄 Bản Quyền (License)
-
-Dự án được phân phối dưới giấy phép [Boost Software License 1.0](LICENSE).
+Phát hành dưới giấy phép Business Source License (BSL-1.0). Tác giả: **sorajiz**.
