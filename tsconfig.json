@@ -111,5 +111,5 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
   "include": ["src/**/*", "tests/**/*", "bot.ts"],
-  "exclude": ["node_modules", "web-dashboard", "native"]
+  "exclude": ["node_modules", "web-dashboard", "vue-dashboard", "csharp-runner", "native"]
 }

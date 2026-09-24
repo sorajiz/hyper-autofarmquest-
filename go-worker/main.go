@@ -7,10 +7,14 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
 	"runtime"
+	"runtime/debug"
+	"strings"
+	"sync"
 	"syscall"
 	"time"
 )
@@ -26,6 +30,76 @@ type HeartbeatResponse struct {
 	Progress  int    `json:"progress"`
 	Completed bool   `json:"completed"`
 	Message   string `json:"message,omitempty"`
+}
+
+// MultiQuestWorkerPool manages concurrent heartbeat goroutines
+type MultiQuestWorkerPool struct {
+	client      *http.Client
+	apiURL      string
+	token       string
+	intervalSec int
+	questIDs    []string
+	wg          sync.WaitGroup
+	ctx         context.Context
+	cancel      context.CancelFunc
+}
+
+func NewWorkerPool(ctx context.Context, apiURL string, token string, intervalSec int, questIDs []string) *MultiQuestWorkerPool {
+	subCtx, cancel := context.WithCancel(ctx)
+	return &MultiQuestWorkerPool{
+		client:      &http.Client{Timeout: 10 * time.Second},
+		apiURL:      apiURL,
+		token:       token,
+		intervalSec: intervalSec,
+		questIDs:    questIDs,
+		ctx:         subCtx,
+		cancel:      cancel,
+	}
+}
+
+func (wp *MultiQuestWorkerPool) Start() {
+	for _, qid := range wp.questIDs {
+		wp.wg.Add(1)
+		go wp.runQuestWorker(qid)
+	}
+}
+
+func (wp *MultiQuestWorkerPool) Stop() {
+	wp.cancel()
+	wp.wg.Wait()
+}
+
+func (wp *MultiQuestWorkerPool) runQuestWorker(questID string) {
+	defer wp.wg.Done()
+
+	// Initial random jitter to stagger API calls
+	jitterMs := rand.Intn(2000) + 500
+	time.Sleep(time.Duration(jitterMs) * time.Millisecond)
+
+	ticker := time.NewTicker(time.Duration(wp.intervalSec) * time.Second)
+	defer ticker.Stop()
+
+	// First heartbeat
+	resp, err := sendHeartbeat(wp.client, wp.apiURL, questID, wp.token)
+	if err == nil && resp.Success {
+		fmt.Printf("✅ [WorkerPool:%s] Initial Heartbeat: Progress %d%%\n", questID, resp.Progress)
+	}
+
+	for {
+		select {
+		case <-wp.ctx.Done():
+			return
+		case <-ticker.C:
+			// Add 1.2s - 2.5s jitter between heartbeats
+			time.Sleep(time.Duration(rand.Intn(1300)+1200) * time.Millisecond)
+			resp, err := sendHeartbeat(wp.client, wp.apiURL, questID, wp.token)
+			if err != nil {
+				fmt.Printf("⚠️  [WorkerPool:%s] Heartbeat error: %v\n", questID, err)
+			} else if resp.Success {
+				fmt.Printf("📡 [WorkerPool:%s] Progress: %d%% | Completed: %v\n", questID, resp.Progress, resp.Completed)
+			}
+		}
+	}
 }
 
 func sendHeartbeat(client *http.Client, apiURL string, questID string, token string) (*HeartbeatResponse, error) {
@@ -78,63 +152,63 @@ func printMemoryUsage() {
 	runtime.ReadMemStats(&m)
 	allocMB := float64(m.Alloc) / 1024 / 1024
 	sysMB := float64(m.Sys) / 1024 / 1024
-	fmt.Printf("📊 [Go Memory] Alloc: %.2f MB | Sys: %.2f MB | Goroutines: %d (<10MB Target)\n",
+	fmt.Printf("📊 [Go Memory] Alloc: %.2f MB | Sys: %.2f MB | Goroutines: %d (<5MB Peak Target)\n",
 		allocMB, sysMB, runtime.NumGoroutine())
 }
 
 func main() {
 	apiURL := flag.String("api", "https://discord.com/api/v9", "Discord or Proxy Base API URL")
-	questID := flag.String("quest-id", "hyper-quest-demo", "Target Discord Quest ID")
+	questIDsFlag := flag.String("quest-ids", "hyper-quest-demo,quest_valorant_30m", "Comma-separated Discord Quest IDs")
+	proxyCheck := flag.String("proxy", "", "Optional Proxy URL to test with DualStack pinger")
 	intervalSec := flag.Int("interval", 30, "Heartbeat interval in seconds")
 	token := flag.String("token", "", "Discord User Authorization Token")
 	flag.Parse()
 
 	fmt.Println("============================================================")
 	fmt.Println("   ⚡ HYPER AUTO FARM QUEST - GO WORKER DAEMON v3.0.0 ⚡   ")
-	fmt.Println("      Ultra-Low RAM Background Heartbeat Runner (<10MB)     ")
+	fmt.Println("    Ultra-Low RAM WorkerPool & DualStack Proxy Pinger       ")
 	fmt.Println("============================================================")
-	fmt.Printf("🎯 Quest Target: %s\n", *questID)
-	fmt.Printf("⏱  Interval    : %d seconds\n", *intervalSec)
-	fmt.Printf("🌐 Endpoint    : %s\n", *apiURL)
 
-	client := &http.Client{
-		Timeout: 10 * time.Second,
+	// If proxy is passed, test with DualStack pinger
+	if *proxyCheck != "" {
+		pinger := NewDualStackPinger(3 * time.Second)
+		res := pinger.PingProxy(context.Background(), *proxyCheck)
+		if res.Alive {
+			fmt.Printf("🌐 [DualStack Pinger] Proxy %s is ALIVE (%dms, %s)\n", res.ProxyURL, res.LatencyMs, res.IPVersion)
+		} else {
+			fmt.Printf("⚠️  [DualStack Pinger] Proxy %s FAILED: %s\n", res.ProxyURL, res.Error)
+		}
 	}
+
+	questList := strings.Split(*questIDsFlag, ",")
+	fmt.Printf("🎯 Active WorkerPool Quests: %d\n", len(questList))
+	fmt.Printf("⏱  Interval                : %d seconds\n", *intervalSec)
+	fmt.Printf("🌐 Base Endpoint           : %s\n", *apiURL)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	ticker := time.NewTicker(time.Duration(*intervalSec) * time.Second)
-	defer ticker.Stop()
+	pool := NewWorkerPool(ctx, *apiURL, *token, *intervalSec, questList)
+	pool.Start()
+	fmt.Println("🚀 [Go Worker] WorkerPool active with concurrent Goroutines.")
 
-	// Initial heartbeat immediately
-	fmt.Println("🚀 [Go Worker] Dispatching initial heartbeat...")
-	resp, err := sendHeartbeat(client, *apiURL, *questID, *token)
-	if err != nil {
-		fmt.Printf("⚠️  [Go Worker] Initial heartbeat notification: %v\n", err)
-	} else if resp.Success {
-		fmt.Printf("✅ [Go Worker] Heartbeat accepted: Progress %d%%\n", resp.Progress)
-	}
-	printMemoryUsage()
-
-	fmt.Println("🔄 [Go Worker] Background daemon running. Press Ctrl+C to terminate.")
-
-	for {
-		select {
-		case <-ctx.Done():
-			fmt.Println("\n🛑 [Go Worker] Termination signal received. Graceful shutdown complete.")
-			return
-		case <-ticker.C:
-			fmt.Printf("📡 [Go Worker] Tick at %s - sending heartbeat...\n", time.Now().Format("15:04:05"))
-			resp, err := sendHeartbeat(client, *apiURL, *questID, *token)
-			if err != nil {
-				fmt.Printf("⚠️  [Go Worker] Send error: %v\n", err)
-			} else if resp.Success {
-				fmt.Printf("✅ [Go Worker] Heartbeat response: Progress=%d%% Completed=%v\n", resp.Progress, resp.Completed)
-			} else {
-				fmt.Printf("ℹ️  [Go Worker] Response info: %s\n", resp.Message)
+	// Periodic garbage collection & memory trimmer
+	go func() {
+		ticker := time.NewTicker(45 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				debug.FreeOSMemory()
+				printMemoryUsage()
 			}
-			printMemoryUsage()
 		}
-	}
+	}()
+
+	<-ctx.Done()
+	fmt.Println("\n🛑 [Go Worker] Termination signal received. Stopping WorkerPool...")
+	pool.Stop()
+	fmt.Println("✔ [Go Worker] Graceful shutdown completed cleanly.")
 }

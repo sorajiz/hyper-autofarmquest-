@@ -44,15 +44,41 @@ services:
     networks:
       - hyper-net
 
+  vue-dashboard:
+    image: node:20-alpine
+    container_name: hyper-vue-dashboard
+    working_dir: /app/vue-dashboard
+    volumes:
+      - .:/app
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - python-api
+    restart: unless-stopped
+    networks:
+      - hyper-net
+
   go-worker:
     image: golang:1.21-alpine
     container_name: hyper-go-worker
     working_dir: /app/go-worker
     volumes:
       - .:/app
-    command: sh -c "go run main.go -api=http://python-api:8000/api -interval=30"
+    command: sh -c "go run . -api=http://python-api:8000/api -interval=30"
     depends_on:
       - python-api
+    restart: unless-stopped
+    networks:
+      - hyper-net
+
+  csharp-runner:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    container_name: hyper-csharp-runner
+    working_dir: /app/csharp-runner
+    volumes:
+      - .:/app
+    command: sh -c "dotnet run -- --app-id 1098679090623692880 --game Valorant --duration 900"
     restart: unless-stopped
     networks:
       - hyper-net

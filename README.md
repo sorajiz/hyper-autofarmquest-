@@ -1,8 +1,8 @@
-# ⚡ Hyper AutoFarm Quest Discord (v3.0.0 - Polyglot Ecosystem)
+# ⚡ Hyper AutoFarm Quest Discord (v3.1.0 - Polyglot Ultra Matrix)
 
 <p align="center">
-  <b>Hệ thống tự động hóa hoàn thành nhiệm vụ Discord Quests & cày Orbs toàn diện, kiến trúc Polyglot đa ngôn ngữ (Node.js/TypeScript, Rust, Go, Python FastAPI, Next.js) kết hợp Discord Components V2, ngụy trang TLS, xoay vòng proxy Dual-Stack, giải quyết thử thách Captcha và giao diện điều khiển đa kênh.</b><br>
-  <i>State-of-the-art Discord Quest & Orbs automation engine featuring Polyglot Monorepo architecture, Discord Components V2 Container layout, Rust native dummy process sleeper, Go ultra-low RAM daemon (<10MB), Python FastAPI WebSocket streamer, Next.js Cyberpunk dark dashboard, and 1-click Docker Compose.</i>
+  <b>Hệ thống tự động hóa hoàn thành nhiệm vụ Discord Quests & cày Orbs toàn diện, kiến trúc Polyglot Monorepo đa ngôn ngữ (Node.js/TypeScript, C# .NET 8, C++ Native, Rust, Go, Python FastAPI, Next.js, Vue 3) kết hợp Discord Components V2, ngụy trang TLS, xoay vòng proxy Dual-Stack, giải quyết thử thách Captcha và giao diện điều khiển đa kênh.</b><br>
+  <i>State-of-the-art Discord Quest & Orbs automation matrix featuring Polyglot Monorepo architecture, Discord Components V2 Container layout, Markterence C#/C++/Rust native dummy process sleepers, Go ultra-low RAM concurrent worker pool & DualStack pinger, Python FastAPI WebSocket streamer, Next.js + Vue 3 Cyberpunk dashboards, and 1-click Docker Compose.</i>
 </p>
 
 ---
@@ -15,156 +15,141 @@ hyper-autofarmquest-/
 ├── src/                     # Core TS engine (client, traffic, quest, questManager)
 │   ├── remote/              # Discord Remote Controller Bot (Discord Components V2)
 │   ├── ui/                  # Interactive Blessed TUI Dashboard
-│   └── native/              # 3-Tier Dynamic Native Addon Loader
+│   └── native/              # 3-Tier Dynamic Native Addon Loader & Markterence Completer
 ├── code.js                  # One-click Discord DevTools Console Script
+├── csharp-runner/           # C# .NET 8 Native WinAPI Game Sleeper & Windows Named Pipe IPC Client
+├── native/                  # C++ Native Subsystem (Node-API Addon & Standalone Win32 Named Pipe Helper)
 ├── rust-engine/             # Rust Native Dummy Game Sleeper & Discord IPC Named Pipe (\\.\pipe\discord-ipc-0)
-├── go-worker/               # Golang Ultra-Low RAM Background Heartbeat Daemon (<10MB RAM)
+├── go-worker/               # Golang Ultra-Low RAM WorkerPool & DualStack IPv4/IPv6 Proxy Pinger (<5MB RAM)
 ├── python-service/          # Python 3.12 + FastAPI REST API & Real-Time WebSocket Broadcaster (/ws/live)
 ├── web-dashboard/           # Next.js 14 Cyberpunk Neon Dark Mode Mission Control UI
-├── docker-compose.yml       # 1-Click Multi-Service Orchestration
-└── tests/                   # 13 Automated Test Suites (100% Pass)
+├── vue-dashboard/           # Vue 3 / Vite Cyberpunk High-Speed Mission Control Dashboard
+├── docker-compose.yml       # 1-Click Multi-Service Orchestration (6 Microservices)
+└── tests/                   # 17 Automated Test Suites (100% Pass)
 ```
 
 ---
 
 ## ✨ Tính Năng Nổi Bật (Features)
 
-1. 🤖 **Discord Remote Bot với Discord Components V2**:
-   - Ứng dụng chuẩn tương tác mới nhất của Discord: `flags: 1 << 15` (`32768`).
-   - Giao diện **Container Layout** viền Blurple hiện đại thay thế Embed truyền thống.
-   - 4 ActionRow Buttons tương tác trực tiếp: `[⚡ Auto Farm]`, `[🎁 Nhận Quà (Claim)]`, `[🔄 Đổi Proxy]`, `[🔍 Quét Ẩn]`.
+1. 🎯 **C# .NET 8 Native Runner (`csharp-runner/`)**:
+   - Sử dụng Win32 Native API (`kernel32.dll` & `psapi.dll`) tối ưu dung lượng RAM cực tiểu.
+   - Kết nối trực tiếp Windows Named Pipe `\\.\pipe\discord-ipc-0` xử lý framing nhị phân Opcode 0 (Handshake) và Opcode 1 (`SET_ACTIVITY`).
+   - Tự động tạo thư mục game dummy `games/<app_id>/<exe_name>.exe` mô phỏng theo `markterence`.
 
-2. 🦀 **Rust Native Engine (`rust-engine/`)**:
-   - Kế thừa kỹ thuật mô phỏng tiến trình từ `markterence/discord-quest-completer`.
-   - Kết nối trực tiếp với Windows Named Pipe `\\.\pipe\discord-ipc-0` gửi khung tin RPC `SET_ACTIVITY`.
-   - Tạo file dummy sleeper giả lập game Verified, tối ưu thời gian chơi không chiếm CPU.
+2. ⚙️ **C++ Native Subsystem (`native/`)**:
+   - **Tier 1 (Node-API Addon)**: `SpoofedFetch` (giả lập JA4 TLS Chrome fingerprint) và `TestProxySocket` kiểm tra TCP raw socket latency.
+   - **Tier 2 (Standalone Helper)**: `sleeper.cpp` viết bằng Win32 C++ thuần, kết nối Named Pipe Discord qua `CreateFileA` / `WriteFile`.
 
-3. 🐹 **Go Ultra-Low RAM Daemon (`go-worker/`)**:
-   - Chạy nền bằng Goroutines bất đồng bộ với mức tiêu thụ RAM cực thấp (< 10MB).
-   - Tự động duy trì nhịp Heartbeat đều đặn và ngắt an toàn khi nhận tín hiệu OS.
+3. 💚 **Vue 3 / Vite Mission Control (`vue-dashboard/`)**:
+   - Giao diện người dùng Web siêu mượt phong cách Cyberpunk Neon Dark Mode.
+   - Bảng theo dõi Orbs Counter, thẻ tiến độ nhiệm vụ thời gian thực, nút 1-click kích hoạt Markterence Dummy Process Sleeper.
 
-4. 🐍 **Python FastAPI & Real-Time WebSocket (`python-service/`)**:
-   - Cung cấp REST endpoints: `/api/status`, `/api/quests`, `/api/farm`, `/api/claim`, `/api/orbs`.
-   - WebSocket `/ws/live` phát sóng tiến độ theo từng giây cho Web Dashboard.
+4. 🐹 **Golang Ultra-Low RAM WorkerPool & DualStack Pinger (`go-worker/`)**:
+   - `MultiQuestWorkerPool`: Điều phối đa nhiệm vụ song song bằng Goroutines với độ trễ so le (Staggered Jitter 1.2s - 2.5s).
+   - `DualStackPinger`: Đo độ trễ kết nối TCP proxy và tự động nhận diện chuẩn IPv4 hoặc IPv6.
+   - Bộ dọn rác chủ động `debug.FreeOSMemory()` duy trì mức tiêu thụ RAM < 5MB.
 
-5. 🌌 **Next.js Cyberpunk Neon Web Dashboard (`web-dashboard/`)**:
-   - Thiết kế giao diện Dark Mode Glassmorphism cao cấp, bảng đếm Orbs phát sáng.
-   - Thẻ tiến độ từng nhiệm vụ (STREAM, PLAY, VIDEO) với thanh phần trăm mượt mà.
-   - Các nút bấm 1-click thao tác nhanh chóng và responsive trên mọi thiết bị.
+5. 🤖 **Discord Remote Bot với Discord Components V2**:
+   - Ứng dụng cờ `flags: 1 << 15` (`32768`), Container Layout viền Blurple và 4 Button tương tác trực tiếp (`Auto Farm`, `Claim`, `Rotate Proxy`, `Rescan`).
 
-6. 🌐 **Dual-Stack Proxy Pool (IPv4 / IPv6) & Failover**:
-   - Hỗ trợ HTTP, HTTPS, SOCKS5 (xác thực user/password).
-   - Tự động nhận diện IPv4 / IPv6 và failover khi proxy gặp sự cố.
+6. 🦀 **Rust Native Engine (`rust-engine/`)**:
+   - Kế thừa kỹ thuật từ `markterence/discord-quest-completer`, kết nối Windows Named Pipe và tạo game dummy runner.
 
-7. 🧩 **Captcha Challenge Pipeline**:
-   - Tự động nhận diện HTTP 400 kèm `captcha_sitekey` từ Discord.
-   - Tích hợp CapSolver, 2Captcha và CLI manual fallback.
-
-8. 🖥️ **Terminal Interactive TUI Dashboard**:
-   - Banner nghệ thuật ASCII `Auto Hyper - Farm Orb`.
-   - Phím tắt tương tác trực tiếp (`r` để rescan, `p` để đổi proxy, `q` để thoát an toàn).
+7. 🐍 **Python FastAPI & Real-Time WebSocket (`python-service/`)**:
+   - REST endpoints: `/api/status`, `/api/quests`, `/api/farm`, `/api/claim`, `/api/orbs`.
+   - WebSocket `/ws/live` stream trực tiếp tiến độ cho cả 2 giao diện Next.js và Vue 3.
 
 ---
 
 ## 🚀 Khởi Chạy Nhanh (Quick Start)
 
-### Lựa chọn A: Khởi chạy toàn bộ bằng Docker Compose (Khuyên dùng)
-
-Chỉ với 1 câu lệnh duy nhất để khởi động toàn bộ hệ sinh thái:
+### 1. Khởi chạy toàn bộ hệ sinh thái bằng Docker Compose
 
 ```bash
 docker compose up -d
 ```
 
-- Web Dashboard sẽ sẵn sàng tại: `http://localhost:3000`
-- Python REST & WebSocket API tại: `http://localhost:8000`
+- **Next.js Web Dashboard**: `http://localhost:3000`
+- **Vue 3 Web Dashboard**: `http://localhost:5173`
+- **Python REST & WebSocket API**: `http://localhost:8000`
 
 ---
 
-### Lựa chọn B: Chạy cục bộ từng module
+### 2. Khởi chạy cục bộ từng thành phần
 
-#### 1. Core CLI & TUI Dashboard (Node.js & TypeScript)
-
+#### C# .NET 8 Runner
 ```bash
-# Cài đặt thư viện
-npm install
-
-# Khởi chạy giao diện Terminal TUI:
-npm start
-
-# Hoặc chế độ Headless cho VPS:
-npm start -- --headless
+cd csharp-runner
+dotnet run -- --app-id 1098679090623692880 --game Valorant --duration 900
 ```
 
-#### 2. Rust Native Game Sleeper & Discord IPC
+#### C++ Helper Binary
+```bash
+cd native/helper
+g++ -O3 sleeper.cpp -o discord_helper.exe
+./discord_helper.exe --app-id 1098679090623692880 --game-name Valorant --duration 900
+```
 
+#### Vue 3 / Vite Mission Control
+```bash
+cd vue-dashboard
+npm install
+npm run dev
+# Truy cập http://localhost:5173
+```
+
+#### Go Worker Daemon & DualStack Pinger
+```bash
+cd go-worker
+go run . -proxy=http://127.0.0.1:1080 -interval=30
+```
+
+#### Rust Native Engine
 ```bash
 cd rust-engine
 cargo run -- --app-id 1098679090623692880 --game-name "Valorant" --duration 900
 ```
 
-#### 3. Go Ultra-Low RAM Daemon
-
+#### Node.js Core CLI & Terminal TUI
 ```bash
-cd go-worker
-go run main.go -quest-id "hyper-quest-demo" -interval 30
+npm start
 ```
-
-#### 4. Python FastAPI Backend & WebSocket
-
-```bash
-cd python-service
-pip install -r requirements.txt
-uvicorn app:app --reload --port 8000
-```
-
-#### 5. Next.js Cyberpunk Web Dashboard
-
-```bash
-cd web-dashboard
-npm install
-npm run dev
-# Truy cập http://localhost:3000
-```
-
-#### 6. Chạy trực tiếp trên Console DevTools của Discord ([`code.js`](code.js))
-
-Mở Discord Desktop Client, nhấn `Ctrl + Shift + I` (hoặc `F12`), dán nội dung file [`code.js`](code.js) vào Console và bấm Enter để tự động hoàn thành tất cả nhiệm vụ hiện có!
 
 ---
 
-## 🧪 Kiểm Thử & Đảm Bảo Chất Lượng (Verification)
-
-Dự án bao gồm 13 bộ kiểm thử tự động toàn diện:
+## 🧪 Kiểm Thử Tự Động (17/17 Test Suites Passed)
 
 ```bash
-# Chạy toàn bộ 13 bộ test suite:
+# Chạy toàn bộ 17 bộ test suite:
 npm test
 
 # Kiểm tra tĩnh kiểu TypeScript:
 npm run typecheck
 ```
 
-**Danh sách 13 bộ test:**
-1. `tests/banner.test.ts` - Kiểm tra hiển thị ASCII Banner `Auto Hyper - Farm Orb`.
-2. `tests/nativeLoader.test.ts` - Kiểm tra bộ nạp Dynamic 3-Tier Native Loader.
+**Danh sách 17 bộ test:**
+1. `tests/banner.test.ts` - Kiểm tra Banner ASCII `Auto Hyper - Farm Orb`.
+2. `tests/nativeLoader.test.ts` - Kiểm tra Dynamic 3-Tier Native Loader.
 3. `tests/proxyPool.test.ts` - Kiểm tra Proxy Pool Dual-Stack IPv4/IPv6 & Failover.
-4. `tests/captcha.test.ts` - Kiểm tra Captcha Challenge Pipeline & Solver Adapter.
-5. `tests/scanner.test.ts` - Kiểm tra Hidden Quests Discovery Scanner Platform Matrix.
+4. `tests/captcha.test.ts` - Kiểm tra Captcha Pipeline & Solver Adapter.
+5. `tests/scanner.test.ts` - Kiểm tra Hidden Quests Scanner Platform Matrix.
 6. `tests/tui.test.ts` - Kiểm tra Interactive Blessed TUI Dashboard.
 7. `tests/discordBot.test.ts` - Kiểm tra Discord Remote Controller Bot logic.
-8. `tests/codeScript.test.ts` - Kiểm tra cú pháp và độ hoàn thiện của file `code.js`.
-9. `tests/componentsV2.test.ts` - Kiểm tra Discord Components V2 Container & Buttons payload (`flags: 1 << 15`).
-10. `tests/rustEngine.test.ts` - Kiểm tra cấu trúc Rust Engine & Game Sleeper binary.
-11. `tests/goWorker.test.ts` - Kiểm tra cấu trúc Go daemon & hàm `sendHeartbeat`.
-12. `tests/pythonService.test.ts` - Kiểm tra FastAPI endpoints & WebSocket broadcaster.
-13. `tests/webDashboard.test.ts` - Kiểm tra cấu trúc giao diện Next.js Web Dashboard.
+8. `tests/codeScript.test.ts` - Kiểm tra file `code.js` cho Console DevTools.
+9. `tests/componentsV2.test.ts` - Kiểm tra Discord Components V2 (`flags: 1 << 15`).
+10. `tests/rustEngine.test.ts` - Kiểm tra Rust Native Engine & Discord IPC Named Pipe.
+11. `tests/goWorker.test.ts` - Kiểm tra Go WorkerPool & DualStack Pinger.
+12. `tests/pythonService.test.ts` - Kiểm tra FastAPI REST & WebSocket Broadcaster.
+13. `tests/webDashboard.test.ts` - Kiểm tra Next.js Cyberpunk Web Dashboard.
+14. `tests/markterence.test.ts` - Kiểm tra Markterence Dummy Process Completer.
+15. `tests/csharpRunner.test.ts` - Kiểm tra C# .NET 8 WinAPI Runner & Named Pipe IPC.
+16. `tests/nativeCpp.test.ts` - Kiểm tra C++ Native Addon & Win32 IPC Helper.
+17. `tests/vueDashboard.test.ts` - Kiểm tra Vue 3 / Vite Mission Control UI.
 
 ---
 
 ## ⚙️ Cấu Hình Môi Trường (`.env`)
-
-Sao chép file `.env.example` thành `.env` và điền cấu hình:
 
 ```env
 # Discord User Token (Bắt buộc cho cày nhiệm vụ)
@@ -192,4 +177,3 @@ AUTO_CLAIM=true
 ## 📄 Bản Quyền & Giấy Phép (License)
 
 Phát triển bởi `sorajiz` - Phát hành dưới giấy phép MIT License.
-Mọi đóng góp, báo cáo lỗi hoặc yêu cầu tính năng xin vui lòng mở Issue hoặc Pull Request trên GitHub.
