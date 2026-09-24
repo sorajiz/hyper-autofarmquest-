@@ -7,6 +7,8 @@ import { renderBanner } from './src/ui/banner';
 import { ClientQuest } from './src/client';
 import { UltraDiscordExtractor } from './src/core/ultraExtractor';
 
+const tsxCli = require.resolve('tsx/cli');
+
 async function promptUser(questionText: string): Promise<string> {
 	const rl = readline.createInterface({
 		input: process.stdin,
@@ -15,6 +17,14 @@ async function promptUser(questionText: string): Promise<string> {
 	return new Promise((resolve) => {
 		rl.question(questionText, (answer) => {
 			rl.close();
+			try {
+				if (process.stdin.isTTY && typeof process.stdin.setRawMode === 'function') {
+					process.stdin.setRawMode(false);
+				}
+			} catch {}
+			try {
+				process.stdin.pause();
+			} catch {}
 			resolve(answer.trim());
 		});
 	});
@@ -93,12 +103,13 @@ async function main() {
 		}
 
 		console.log(chalk.hex('#00D26A')('[OK] Bot credentials loaded. Launching Discord Gateway service...'));
-		const botProcess = spawn('npx', ['tsx', 'bot.ts', '--remote-only'], {
+		const botProcess = spawn(process.execPath, [tsxCli, 'bot.ts', '--remote-only'], {
 			stdio: 'inherit',
-			shell: true,
 			env: { ...process.env, DISCORD_BOT_TOKEN: botToken },
 		});
-		botProcess.on('exit', (code) => process.exit(code ?? 0));
+		botProcess.on('exit', (code) => {
+			process.exitCode = code ?? 0;
+		});
 	} else if (selectedMode === '3') {
 		// ==========================================
 		// CHẾ ĐỘ 3: LOCALHOST WEB DASHBOARD
@@ -109,26 +120,24 @@ async function main() {
 		console.log(chalk.hex('#94A3B8')(`[NETWORK] Target Web Interface: ${chalk.hex('#00F0FF').underline(targetUrl)}`));
 
 		const webDir = path.resolve(process.cwd(), 'web-dashboard');
-		let runner: any;
-		if (fs.existsSync(webDir)) {
-			runner = spawn('npm', ['run', 'dev'], {
-				cwd: webDir,
-				stdio: 'inherit',
-				shell: true,
-			});
-		} else {
-			runner = spawn('npx', ['tsx', 'bot.ts', '--headless'], {
-				stdio: 'inherit',
-				shell: true,
-			});
-		}
+		const runner = fs.existsSync(webDir)
+			? spawn(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', 'dev'], {
+					cwd: webDir,
+					stdio: 'inherit',
+					shell: true,
+				})
+			: spawn(process.execPath, [tsxCli, 'bot.ts', '--headless'], {
+					stdio: 'inherit',
+				});
 
 		setTimeout(() => {
 			console.log(chalk.hex('#00D26A')(`[DISPATCH] Opening default web browser at ${targetUrl}...`));
 			openBrowser(targetUrl);
 		}, 2500);
 
-		runner.on('exit', (code: any) => process.exit(code ?? 0));
+		runner.on('exit', (code: any) => {
+			process.exitCode = code ?? 0;
+		});
 	} else if (selectedMode === '4') {
 		// ==========================================
 		// CHẾ ĐỘ 4: ULTRA DEEP API EXTRACTOR & VAULT DUMP
@@ -186,12 +195,13 @@ async function main() {
 		}
 
 		console.log(chalk.hex('#00D26A')('[OK] User authenticated. Initializing TUI telemetry console...'));
-		const tuiProcess = spawn('npx', ['tsx', 'bot.ts'], {
+		const tuiProcess = spawn(process.execPath, [tsxCli, 'bot.ts'], {
 			stdio: 'inherit',
-			shell: true,
 			env: { ...process.env, TOKEN: userToken },
 		});
-		tuiProcess.on('exit', (code) => process.exit(code ?? 0));
+		tuiProcess.on('exit', (code) => {
+			process.exitCode = code ?? 0;
+		});
 	}
 }
 

@@ -64,7 +64,10 @@ assert.ok(resIP.isp, 'ISP must be identified');
 const resHeaders = pool.getResidentialHeaders();
 assert.ok(resHeaders['X-Forwarded-For'], 'Must generate X-Forwarded-For header');
 assert.ok(resHeaders['X-Real-IP'], 'Must generate X-Real-IP header');
-assert.ok(resHeaders['CF-Connecting-IP'], 'Must generate CF-Connecting-IP header');
+assert.ok(resHeaders['Client-IP'], 'Must generate Client-IP header');
+
+const cfHeaders = pool.getResidentialHeaders(true);
+assert.ok(cfHeaders['CF-Connecting-IP'], 'Must generate CF-Connecting-IP header when enabled');
 
 // 8. Test GlobalProxyPool auto-seeded fallback (so users don't need to buy proxies)
 const globalStats = GlobalProxyPool.getStats();

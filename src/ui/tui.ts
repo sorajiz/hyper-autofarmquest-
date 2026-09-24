@@ -21,6 +21,8 @@ export interface HotkeyCallbacks {
 export class TUIDashboard {
 	private isHeadless: boolean;
 	private interactive: boolean;
+	private onDataHandler: ((keyBuffer: Buffer | string) => void) | null = null;
+	private hotkeysBound: boolean = false;
 
 	constructor(options: { isHeadless?: boolean } = {}) {
 		this.isHeadless = options.isHeadless ?? process.argv.includes('--headless');
@@ -58,14 +60,16 @@ export class TUIDashboard {
 	}
 
 	public bindHotkeys(callbacks: HotkeyCallbacks): void {
-		if (!this.interactive) return;
+		if (!this.interactive || this.hotkeysBound) return;
 
 		try {
-			process.stdin.setRawMode(true);
+			if (process.stdin.isTTY && typeof process.stdin.setRawMode === 'function') {
+				process.stdin.setRawMode(true);
+			}
 			process.stdin.resume();
 			process.stdin.setEncoding('utf8');
 
-			process.stdin.on('data', (keyBuffer: Buffer | string) => {
+			this.onDataHandler = (keyBuffer: Buffer | string) => {
 				const keyStr = String(keyBuffer);
 				if (keyStr === '\u0003' || keyStr === 'q') {
 					callbacks.onQuit();
@@ -78,9 +82,13 @@ export class TUIDashboard {
 				} else if (keyStr === 'e') {
 					callbacks.onDeepExtract?.();
 				}
-			});
+			};
+
+			process.stdin.on('data', this.onDataHandler);
+			this.hotkeysBound = true;
 		} catch {
 			this.interactive = false;
+			this.hotkeysBound = false;
 		}
 	}
 
@@ -109,11 +117,22 @@ export class TUIDashboard {
 	}
 
 	public cleanup(): void {
+		if (this.onDataHandler) {
+			try {
+				process.stdin.removeListener('data', this.onDataHandler);
+			} catch {}
+			this.onDataHandler = null;
+		}
 		if (this.interactive) {
 			try {
-				process.stdin.setRawMode(false);
+				if (process.stdin.isTTY && typeof process.stdin.setRawMode === 'function') {
+					process.stdin.setRawMode(false);
+				}
 			} catch {}
-			process.stdin.pause();
+			try {
+				process.stdin.pause();
+			} catch {}
 		}
+		this.hotkeysBound = false;
 	}
 }

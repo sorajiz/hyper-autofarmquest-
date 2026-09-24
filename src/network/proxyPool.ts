@@ -229,17 +229,23 @@ export class ProxyPoolManager {
 	}
 
 	/**
-	 * Injects rotated residential headers to disperse Discord rate limiting per IP
+	 * Injects rotated residential headers to disperse rate limiting per IP.
+	 * NOTE: By default, internal Cloudflare headers like CF-Connecting-IP are NOT sent to Discord,
+	 * as Cloudflare Edge WAF rejects client requests with HTTP 403 Error 1000.
+	 * When includeCloudflareInternal is true (e.g. for internal upstream proxy chains), CF-Connecting-IP is provided.
 	 */
-	public getResidentialHeaders(): Record<string, string> {
+	public getResidentialHeaders(includeCloudflareInternal = false): Record<string, string> {
 		const residential = this.getRandomResidentialIP();
-		return {
+		const headers: Record<string, string> = {
 			'X-Forwarded-For': residential.ip,
 			'X-Real-IP': residential.ip,
-			'CF-Connecting-IP': residential.ip,
 			'Client-IP': residential.ip,
-			'True-Client-IP': residential.ip,
 		};
+		if (includeCloudflareInternal) {
+			headers['CF-Connecting-IP'] = residential.ip;
+			headers['True-Client-IP'] = residential.ip;
+		}
+		return headers;
 	}
 
 	public getStats(): { total: number; healthy: number; ipv6Count: number } {

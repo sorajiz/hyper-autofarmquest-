@@ -68,43 +68,46 @@ export async function gracefulShutdown(reason: string = 'Người dùng yêu c�
 		}
 	}
 	console.log(chalk.green('✔ Đã lưu tiến độ an toàn. Tạm biệt!\n'));
-	process.exit(0);
+	process.exitCode = 0;
+	setTimeout(() => process.exit(0), 50).unref();
 }
 
 process.on('SIGINT', () => gracefulShutdown('Ctrl+C'));
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
-tuiDashboard.bindHotkeys({
-	onQuit: () => gracefulShutdown('Phím q bấm bởi người dùng'),
-	onRescan: async () => {
-		logActivity('Đang quét nhiệm vụ ẩn (Hidden Quests Scanner)...', 'info');
-		if (client.questManager) {
-			const found = await client.questManager.scanHiddenQuests();
-			logActivity(`Đã quét xong: tìm thấy ${found.length} nhiệm vụ mới.`, 'info');
-		}
-	},
-	onRotateProxy: () => {
-		const next = GlobalProxyPool.rotate();
-		logActivity(next ? `Đã xoay proxy sang: ${next.url}` : 'Chưa cấu hình danh sách proxy để xoay', 'info');
-	},
-	onCheckCaptcha: () => {
-		logActivity('Kiểm tra Captcha Pipeline: Sẵn sàng tự động nhận diện và giải challenge.', 'info');
-	},
-	onDeepExtract: async () => {
-		logActivity('Đang chạy Ultra Deep Discord API Extractor trích xuất toàn diện Vault...', 'info');
-		if (client.questManager) {
-			try {
-				const report = await client.questManager.auditAccountVault();
-				logActivity(
-					`Trích xuất thành công: ${report.totalDiscoveredQuests} quests, ${report.entitlements.length} entitlements, ${report.experimentsCount} experiments. Saved: vault/discord_vault_audit.json`,
-					'info',
-				);
-			} catch (err: any) {
-				logActivity(`Lỗi trích xuất API: ${err?.message || err}`, 'warn');
+function initHotkeys() {
+	tuiDashboard.bindHotkeys({
+		onQuit: () => gracefulShutdown('Phím q bấm bởi người dùng'),
+		onRescan: async () => {
+			logActivity('Đang quét nhiệm vụ ẩn (Hidden Quests Scanner)...', 'info');
+			if (client.questManager) {
+				const found = await client.questManager.scanHiddenQuests();
+				logActivity(`Đã quét xong: tìm thấy ${found.length} nhiệm vụ mới.`, 'info');
 			}
-		}
-	},
-});
+		},
+		onRotateProxy: () => {
+			const next = GlobalProxyPool.rotate();
+			logActivity(next ? `Đã xoay proxy sang: ${next.url}` : 'Chưa cấu hình danh sách proxy để xoay', 'info');
+		},
+		onCheckCaptcha: () => {
+			logActivity('Kiểm tra Captcha Pipeline: Sẵn sàng tự động nhận diện và giải challenge.', 'info');
+		},
+		onDeepExtract: async () => {
+			logActivity('Đang chạy Ultra Deep Discord API Extractor trích xuất toàn diện Vault...', 'info');
+			if (client.questManager) {
+				try {
+					const report = await client.questManager.auditAccountVault();
+					logActivity(
+						`Trích xuất thành công: ${report.totalDiscoveredQuests} quests, ${report.entitlements.length} entitlements, ${report.experimentsCount} experiments. Saved: vault/discord_vault_audit.json`,
+						'info',
+					);
+				} catch (err: any) {
+					logActivity(`Lỗi trích xuất API: ${err?.message || err}`, 'warn');
+				}
+			}
+		},
+	});
+}
 
 function playAlertSound() {
 	if (config.playSound) {
@@ -295,6 +298,7 @@ async function startBot() {
 		const user = await client.fetchCurrentUser();
 		currentUser = user;
 		console.log(chalk.green(`✔ Đăng nhập thành công: ${user.username} (${user.id})`));
+		initHotkeys();
 
 		logActivity(`Đăng nhập thành công: ${chalk.yellow(user.username)}`);
 
@@ -509,6 +513,10 @@ async function startBot() {
 		console.log(chalk.bold.green('\n🎉 TẤT CẢ NHIỆM VỤ ĐÃ HOÀN TẤT THÀNH CÔNG!'));
 		console.log(chalk.cyan('Cảm ơn bạn đã sử dụng Discord Quest Bot.\n'));
 	} catch (err: any) {
+		tuiDashboard.cleanup();
+		GlobalTraffic.shutdown();
+		if (updateTimer) clearInterval(updateTimer);
+
 		if (err?.status === 401 || String(err).includes('401')) {
 			console.error(chalk.red.bold('\n🔑 LỖI XÁC THỰC: 401 Unauthorized (Token không hợp lệ hoặc đã hết hạn)'));
 			console.log(chalk.yellow('Token Discord hiện tại trong file .env không còn hiệu lực.'));
@@ -518,13 +526,17 @@ async function startBot() {
 			console.log(chalk.green.bold('   (webpackChunkdiscord_app.push([[\'\'],{},e=>{m=[];for(let c in e.c)m.push(e.c[c])}]),m).find(m=>m?.exports?.default?.getToken!==void 0).exports.default.getToken()\n'));
 			console.log(chalk.cyan('3. Copy chuỗi Token hiển thị trong dấu ngoặc kép và cập nhật vào file .env:'));
 			console.log(chalk.white('   TOKEN=chuoi_token_vua_copy\n'));
-			process.exit(1);
+			process.exitCode = 1;
+			setTimeout(() => process.exit(1), 50).unref();
+			return;
 		}
 
 		console.error(chalk.red(`\n❌ Đã xảy ra lỗi: ${err?.message || err}`));
 		if (err?.stack) {
 			console.error(chalk.gray(err.stack));
 		}
+		process.exitCode = 1;
+		setTimeout(() => process.exit(1), 50).unref();
 	}
 }
 

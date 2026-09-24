@@ -20,7 +20,7 @@ rawProxies.forEach((p) => GlobalProxyPool.addProxy(p));
 
 export function getActiveDispatcher(): any {
 	const currentProxy = GlobalProxyPool.getHealthyProxy();
-	if (!currentProxy) return undefined;
+	if (!currentProxy || currentProxy.isVirtualResidential) return undefined;
 
 	if (currentProxy.protocol === 'socks5:') {
 		return new SocksProxyAgent(currentProxy.url);
