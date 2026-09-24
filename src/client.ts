@@ -72,9 +72,41 @@ async function makeRequest(
 				'base64',
 			),
 		);
+
+		// Injects dynamic residential IP headers ("IP Chung Cư / FTTH") to disperse IP rate limiting
+		const residentialHeaders = GlobalProxyPool.getResidentialHeaders();
+		for (const [key, val] of Object.entries(residentialHeaders)) {
+			if (!myHeaders.has(key)) {
+				myHeaders.set(key, val);
+			}
+		}
+
 		init.headers = myHeaders;
 	}
-	return DefaultRestOptions.makeRequest(url, init);
+
+	const activeProxy = GlobalProxyPool.getHealthyProxy();
+	try {
+		const res = await DefaultRestOptions.makeRequest(url, init);
+
+		// Handle HTTP 429 Rate Limits
+		if (res.status === 429) {
+			const retryHeader = res.headers.get('retry-after');
+			const retryAfterMs = retryHeader ? Math.ceil(Number(retryHeader) * 1000) : 30000;
+			GlobalProxyPool.handleRateLimit(activeProxy?.url, retryAfterMs);
+		} else if (res.status >= 200 && res.status < 400) {
+			if (activeProxy) {
+				GlobalProxyPool.recordSuccess(activeProxy.url);
+			}
+		}
+
+		return res;
+	} catch (err) {
+		// Connection failed - mark active proxy and fallback immediately
+		if (activeProxy) {
+			GlobalProxyPool.handleRateLimit(activeProxy.url, 45000);
+		}
+		throw err;
+	}
 }
 
 const originalSend = WebSocketShard.prototype.send;

@@ -90,8 +90,8 @@ func (wp *MultiQuestWorkerPool) runQuestWorker(questID string) {
 		case <-wp.ctx.Done():
 			return
 		case <-ticker.C:
-			// Add 1.2s - 2.5s jitter between heartbeats
-			time.Sleep(time.Duration(rand.Intn(1300)+1200) * time.Millisecond)
+			// Adaptive Jitter: 1.5s - 3.5s (1500ms - 3500ms) chống Discord WAF
+			time.Sleep(time.Duration(rand.Intn(2000)+1500) * time.Millisecond)
 			resp, err := sendHeartbeat(wp.client, wp.apiURL, questID, wp.token)
 			if err != nil {
 				fmt.Printf("⚠️  [WorkerPool:%s] Heartbeat error: %v\n", questID, err)

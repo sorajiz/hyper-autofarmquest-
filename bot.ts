@@ -448,7 +448,8 @@ async function startBot() {
 				if (res?.progress) {
 					dState.currentSeconds = dState.quest.getCurrentProgress(dState.taskType);
 				}
-				await sleep(rnd(1500, 2500));
+				// Adaptive Jitter (1.5s - 3.5s) ngăn chặn Discord WAF nhận diện hành vi gửi request dồn dập
+				await sleep(GlobalProxyPool.getAdaptiveJitter(1500, 3500));
 			}
 			renderDashboard(user, true);
 
@@ -491,8 +492,8 @@ async function startBot() {
 						}
 					}
 
-					// Độ trễ so le giữa từng game để không gửi dồn dập
-					await sleep(rnd(1500, 2500));
+					// Nhịp trễ ngẫu nhiên Adaptive Jitter (1.5s - 3.5s) ngăn chặn Discord WAF nhận diện
+					await sleep(GlobalProxyPool.getAdaptiveJitter(1500, 3500));
 				}
 
 				renderDashboard(user, true);
