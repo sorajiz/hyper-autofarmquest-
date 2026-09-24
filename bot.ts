@@ -483,6 +483,18 @@ async function startBot() {
 		console.log(chalk.bold.green('\n🎉 TẤT CẢ NHIỆM VỤ ĐÃ HOÀN TẤT THÀNH CÔNG!'));
 		console.log(chalk.cyan('Cảm ơn bạn đã sử dụng Discord Quest Bot.\n'));
 	} catch (err: any) {
+		if (err?.status === 401 || String(err).includes('401')) {
+			console.error(chalk.red.bold('\n🔑 LỖI XÁC THỰC: 401 Unauthorized (Token không hợp lệ hoặc đã hết hạn)'));
+			console.log(chalk.yellow('Token Discord hiện tại trong file .env không còn hiệu lực.'));
+			console.log(chalk.white('\n💡 CÁCH LẤY TOKEN MỚI NHANH NHẤT (1 GIÂY):'));
+			console.log(chalk.cyan('1. Mở Discord Desktop hoặc Discord trên trình duyệt, nhấn Ctrl + Shift + I để mở Console.'));
+			console.log(chalk.cyan('2. Dán đoạn mã sau vào Console và nhấn Enter:\n'));
+			console.log(chalk.green.bold('   (webpackChunkdiscord_app.push([[\'\'],{},e=>{m=[];for(let c in e.c)m.push(e.c[c])}]),m).find(m=>m?.exports?.default?.getToken!==void 0).exports.default.getToken()\n'));
+			console.log(chalk.cyan('3. Copy chuỗi Token hiển thị trong dấu ngoặc kép và cập nhật vào file .env:'));
+			console.log(chalk.white('   TOKEN=chuoi_token_vua_copy\n'));
+			process.exit(1);
+		}
+
 		console.error(chalk.red(`\n❌ Đã xảy ra lỗi: ${err?.message || err}`));
 		if (err?.stack) {
 			console.error(chalk.gray(err.stack));
