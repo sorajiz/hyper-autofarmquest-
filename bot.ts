@@ -566,16 +566,23 @@ async function startBot() {
 if (isRemoteOnly) {
 	const rawBotToken = process.env.DISCORD_BOT_TOKEN || process.env.TOKEN || '';
 	const botToken = TokenValidator.sanitizeToken(rawBotToken);
+	const guildId = process.env.DISCORD_GUILD_ID?.trim() || '';
 	if (!botToken || botToken.length < 20) {
 		console.error(chalk.red('\n❌ LỖI: Chưa cấu hình DISCORD_BOT_TOKEN trong file .env!'));
 		process.exit(1);
 	}
 	console.log(chalk.hex('#5865F2').bold('\n[CHẾ ĐỘ 1: DISCORD REMOTE BOT KHỞI CHẠY]'));
-	console.log(chalk.cyan('Đang kết nối Discord Gateway cho Remote Bot...'));
-	const remoteBot = new DiscordRemoteBot(botToken);
+	console.log(chalk.cyan('Đang kết nối Discord Gateway cho Remote Bot (Mobile Status: Android)...'));
+	const remoteBot = new DiscordRemoteBot(botToken, guildId);
 	remoteBot.start().then(() => {
 		console.log(chalk.green.bold('✔ Discord Remote Bot đã kết nối thành công và đang hoạt động 24/7!'));
-		console.log(chalk.cyan('Sử dụng các Slash Command trên server Discord: /status, /farm, /claim, /proxy, /vault'));
+		console.log(chalk.green.bold('📱 Trạng thái: Mobile Online (Discord Android) • Activity: Hyper AutoFarm Quest V3.2 ⚡'));
+		if (guildId) {
+			console.log(chalk.green.bold(`⚡ Slash Commands đã kích hoạt NGAY LẬP TỨC trên Guild ID: ${guildId} (0s delay)!`));
+		} else {
+			console.log(chalk.cyan('⚡ Slash Commands đã được đăng ký trên phạm vi Global!'));
+		}
+		console.log(chalk.cyan('Sử dụng các Slash Command trên Discord: /farm, /status, /claim, /hypesquad, /proxy, /vault, /scan'));
 		console.log(chalk.gray('>> Nhấn Ctrl+C để dừng bot an toàn.\n'));
 	}).catch((err) => {
 		console.error(chalk.red('❌ Lỗi kết nối Remote Bot:'), err?.message || err);

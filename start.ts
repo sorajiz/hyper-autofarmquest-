@@ -113,10 +113,29 @@ async function main() {
 			process.env.DISCORD_BOT_TOKEN = botToken;
 		}
 
+		// Prompt for optional Guild ID for 0-second instant slash command deployment
+		let guildId = process.env.DISCORD_GUILD_ID?.trim() || '';
+		console.log(chalk.hex('#00F0FF')('\n[INSTANT DEPLOYMENT] Guild ID (Tùy chọn - Đăng ký Slash Commands ngay lập tức 0s):'));
+		console.log(chalk.hex('#64748B')('▸ Nhập Guild ID (Server ID) để lệnh xuất hiện NGAY LẬP TỨC trong server đó.'));
+		console.log(chalk.hex('#64748B')('▸ Hoặc nhấn Enter để bỏ qua (sẽ đăng ký Global cho mọi server).'));
+		const guildInput = await promptUser(
+			chalk.hex('#F8FAFC').bold(`▸ Enter Target Guild ID [Nhấn Enter để bỏ qua] ${guildId ? `(Hiện tại: ${guildId})` : ''}: `)
+		);
+		if (guildInput) {
+			guildId = guildInput.trim();
+			process.env.DISCORD_GUILD_ID = guildId;
+			TokenValidator.syncTokenToEnv('DISCORD_GUILD_ID', guildId);
+			console.log(chalk.hex('#00D26A')(`✔ Đã lưu Guild ID: ${guildId} -> Slash commands sẽ deploy NGAY LẬP TỨC (0s delay)!`));
+		} else if (guildId) {
+			console.log(chalk.hex('#00D26A')(`✔ Tiếp tục dùng Guild ID cấu hình sẵn: ${guildId}`));
+		} else {
+			console.log(chalk.hex('#94A3B8')('ℹ Bỏ qua Guild ID -> Slash commands sẽ deploy chế độ Global.'));
+		}
+
 		console.log(chalk.hex('#00D26A')('[OK] Bot credentials loaded. Launching Discord Gateway service...'));
 		const botProcess = spawn(process.execPath, [tsxCli, 'bot.ts', '--remote-only'], {
 			stdio: 'inherit',
-			env: { ...process.env, DISCORD_BOT_TOKEN: botToken },
+			env: { ...process.env, DISCORD_BOT_TOKEN: botToken, DISCORD_GUILD_ID: guildId },
 		});
 		botProcess.on('exit', (code) => {
 			process.exitCode = code ?? 0;

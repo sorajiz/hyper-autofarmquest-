@@ -9,6 +9,51 @@ delete window.$;
 let wpRequire = webpackChunkdiscord_app.push([[Symbol()], {}, (r) => r]);
 webpackChunkdiscord_app.pop();
 
+// ==========================================
+// 🛡️ Webpack Chunk Finder & HypeSquad Controller
+// ==========================================
+let wreq = wpRequire;
+const chunks = wreq?.m ? Object.entries(wreq.m) : [];
+const findChunkByCode = (...codes) => {
+	for (let i = 0; i < chunks.length; i++) {
+		const [id, func] = chunks[i];
+		const chunkCode = func ? func.toString() : '';
+		if (codes.every((code) => chunkCode.includes(code))) return wreq(id);
+	}
+};
+
+const httpUtilsChunk = findChunkByCode("HTTPUtils");
+const httpApi = httpUtilsChunk ? Object.values(httpUtilsChunk).find((e) => e?.get) : null;
+
+// Expose utilities on window for Discord Console power users
+if (typeof window !== 'undefined') {
+	window.findChunkByCode = findChunkByCode;
+	window.joinHypeSquad = async (house_id = 1) => {
+		const houseNames = {
+			1: 'House of Bravery (🛡️)',
+			2: 'House of Brilliance (🔮)',
+			3: 'House of Balance (⚖️)',
+			0: 'Leave HypeSquad (🚪)',
+		};
+		const targetApi = httpApi || api;
+		if (!targetApi) {
+			console.error('%c❌ Could not find HTTPUtils API chunk.', 'color: #EF4444;');
+			return;
+		}
+		try {
+			if (house_id > 0) {
+				await targetApi.post({ url: '/hypesquad/online', body: { house_id } });
+				console.log(`%c✔ Successfully joined ${houseNames[house_id] || `House #${house_id}`}!`, 'color: #00D26A; font-weight: bold;');
+			} else {
+				await targetApi.delete({ url: '/hypesquad/online' });
+				console.log('%c✔ Successfully left HypeSquad!', 'color: #F59E0B; font-weight: bold;');
+			}
+		} catch (err) {
+			console.error('%c❌ HypeSquad update failed:', 'color: #EF4444;', err);
+		}
+	};
+}
+
 let ApplicationStreamingStore = Object.values(wpRequire.c).find(
 	(x) => x?.exports?.Z?.__proto__?.getStreamerActiveStreamMetadata,
 ).exports.Z;

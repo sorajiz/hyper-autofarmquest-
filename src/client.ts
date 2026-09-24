@@ -113,8 +113,31 @@ const originalSend = WebSocketShard.prototype.send;
 WebSocketShard.prototype.send = async function (payload: GatewaySendPayload) {
 	if (payload.op === GatewayOpcodes.Identify) {
 		const rawD = payload.d as any;
-		// If intents are provided (Discord Bot), do not strip them
+		// If intents are provided (Discord Bot), ensure Discord Android Mobile status + rich presence
 		if (rawD?.intents !== undefined && rawD.intents > 0) {
+			rawD.properties = {
+				os: 'Android',
+				browser: 'Discord Android',
+				device: 'Discord Android',
+				$os: 'Android',
+				$browser: 'Discord Android',
+				$device: 'Discord Android',
+				...(rawD.properties || {}),
+			};
+			if (!rawD.presence?.activities?.length) {
+				rawD.presence = {
+					status: 'online',
+					since: null,
+					afk: false,
+					activities: [
+						{
+							name: 'Hyper AutoFarm Quest V3.2 ⚡',
+							type: 0,
+							state: '⚡ Auto-farming Quests & Orbs | Mobile Matrix',
+						},
+					],
+				};
+			}
 			return originalSend.call(this, payload);
 		}
 		payload.d = {

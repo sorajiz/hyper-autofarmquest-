@@ -335,4 +335,43 @@ export class QuestManager implements Iterable<Quest> {
 		await extractor.exportVaultAudit(report);
 		return report;
 	}
+
+	async joinHypeSquad(houseId: number): Promise<{ success: boolean; message: string; houseName: string }> {
+		const houseNames: Record<number, string> = {
+			1: 'House of Bravery (Dũng Cảm)',
+			2: 'House of Brilliance (Sáng Suốt)',
+			3: 'House of Balance (Cân Bằng)',
+			0: 'Rời House',
+		};
+		const houseName = houseNames[houseId] || `House #${houseId}`;
+		try {
+			if (houseId > 0) {
+				await GlobalTraffic.enqueue(() =>
+					this.client.rest.post('/hypesquad/online', {
+						body: { house_id: houseId },
+					}),
+				);
+				return {
+					success: true,
+					message: `Gia nhập thành công ${houseName}!`,
+					houseName,
+				};
+			} else {
+				await GlobalTraffic.enqueue(() =>
+					this.client.rest.delete('/hypesquad/online'),
+				);
+				return {
+					success: true,
+					message: `Đã rời HypeSquad thành công!`,
+					houseName,
+				};
+			}
+		} catch (err: any) {
+			return {
+				success: false,
+				message: `Lỗi cập nhật HypeSquad: ${err?.message || err}`,
+				houseName,
+			};
+		}
+	}
 }

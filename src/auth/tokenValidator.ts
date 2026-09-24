@@ -108,9 +108,9 @@ export class TokenValidator {
 	}
 
 	/**
-	 * Updates the .env file automatically when a new token is validated
+	 * Updates the .env file automatically when a new token or setting is validated
 	 */
-	public static syncTokenToEnv(key: 'TOKEN' | 'DISCORD_BOT_TOKEN', value: string): void {
+	public static syncTokenToEnv(key: 'TOKEN' | 'DISCORD_BOT_TOKEN' | 'DISCORD_GUILD_ID' | string, value: string): void {
 		const envPath = path.resolve(process.cwd(), '.env');
 		if (!fs.existsSync(envPath)) return;
 
